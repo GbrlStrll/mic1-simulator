@@ -1,0 +1,187 @@
+/* Estrutura base e elementos principais */
+/* -------------------------------- */
+
+/* Painel principal */
+.root-pane {
+    -fx-background-color: #343434;
+}
+
+/* Título principal da CPU */
+.title-label {
+    -fx-font-size: 43px;
+    -fx-text-fill: white;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 5px 0;
+}
+
+/* Container principal escuro */
+.content-pane {
+    -fx-background-color: #3C3C3C;
+    -fx-background-radius: 10;
+    -fx-border-color: #3C3C3C;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+/* Divisão da tela */
+.split-pane {
+    -fx-background-color: transparent;
+    -fx-spacing: 15px;
+    -fx-padding: 15px;
+}
+
+.split-pane-column {
+    -fx-min-width: 0;
+}
+
+/* Elementos de cabeçalho e títulos */
+/* ----------------------------- */
+
+/* Subtítulos das seções */
+.sub-title-label {
+    -fx-font-size: 21.5px;
+    -fx-text-fill: white;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 5px 0;
+}
+
+/* Área de estatísticas */
+/* ------------------- */
+
+/* Painel de estatísticas */
+.stats-pane {
+    -fx-padding: 15px;
+    -fx-spacing: 3px;
+}
+
+/* Rótulos de estatísticas */
+.stats-label {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Caixa de status com indicador */
+.status-box {
+    -fx-alignment: center-left;
+    -fx-spacing: 5px;
+    -fx-padding: 3px 0 0 0;
+}
+
+/* Indicador desligado (vermelho) */
+.status-indicator-off {
+    -fx-fill: red;
+    -fx-stroke: transparent;
+}
+
+/* Indicador ligado (verde) */
+.status-indicator-on {
+    -fx-fill: #00FF00;
+    -fx-stroke: transparent;
+}
+
+/* Tabela de registradores */
+/* --------------------- */
+/* Estrutura da tabela */
+.register-table {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+}
+
+/* Cabeçalho da tabela */
+.register-table .column-header-background {
+    -fx-background-color: #232323;
+    -fx-background-radius: 10 10 0 0;
+    -fx-background-insets: 0;
+}
+
+/* Células do cabeçalho */
+.register-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 8px;
+}
+
+/* Texto do cabeçalho */
+.register-table .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px
+}
+
+/* Linhas da tabela */
+.register-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+/* Efeito zebrado nas linhas */
+.register-table .table-row-cell:odd {
+    -fx-background-color: #343434;
+}
+
+.register-table .table-row-cell:even {
+    -fx-background-color: #3C3C3C;
+}
+
+/* Células vazias */
+.register-table .filler {
+     -fx-background-color: #3C3C3C;
+}
+
+/* Conteúdo das células */
+.register-table .cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Área de log (textarea) */
+.log-textarea {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+    -fx-border-color: #343434;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+.log-textarea:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: #343434;
+}
+.log-textarea .scroll-pane {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+}
+.log-textarea .scroll-pane .viewport {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+}
+.log-textarea .content {
+    -fx-background-color: #343434;
+    -fx-background-radius: 9;
+    -fx-padding: 5px;
+}
+.log-textarea .scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #343434;
+    -fx-background-radius: 0 10 10 0;
+    -fx-pref-width: 8px;
+}
+.log-textarea .scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: #343434;
+    -fx-background-radius: 0 0 10 10;
+    -fx-pref-height: 8px;
+}
+.log-textarea .scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #7a7e8a;
+    -fx-background-radius: 10;
+}
+.log-textarea .scroll-pane .scroll-bar .increment-button,
+.log-textarea .scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}

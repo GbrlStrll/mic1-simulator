@@ -1,0 +1,92 @@
+/* TextField e TextArea uniformes com a tabela */
+.text-field, .text-area {
+    -fx-background-color: #343434;
+    -fx-text-fill: white;
+    -fx-border-color: #343434;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #343434;
+}
+/* Estrutura base e elementos principais */
+/* -------------------------------- */
+
+/* Painel principal */
+.root-pane {
+    -fx-background-color: #343434;
+}
+
+/* Título da memória principal */
+.title-label {
+    -fx-font-size: 43px;
+    -fx-text-fill: white;
+    -fx-max-width: infinity; 
+}
+
+/* Container da tabela */
+.table-container {
+    -fx-background-color: #3C3C3C;
+    -fx-background-radius: 10;
+}
+
+/* Estilo base da tabela */
+.table-view {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+}
+
+/* Cabeçalho da tabela */
+/* ----------------- */
+
+/* Fundo do cabeçalho */
+.table-view .column-header-background {
+    -fx-background-color: #232323;
+    -fx-background-radius: 10 10 0 0;
+    -fx-background-insets: 0;
+}
+
+/* Estilo das células do cabeçalho */
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 8px;
+}
+
+/* Texto do cabeçalho */
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* Conteúdo da tabela */
+/* ----------------- */
+
+/* Estilo das linhas */
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+/* Efeito zebrado nas linhas */
+.table-view .table-row-cell:odd {
+    -fx-background-color: #4A4A52; 
+}
+
+.table-view .table-row-cell:even {
+    -fx-background-color: #3C3C3C;
+}
+
+/* Células vazias */
+.table-view .filler {
+     -fx-background-color: #3C3C3C;
+}
+
+/* Conteúdo das células */
+.table-view .cell {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}

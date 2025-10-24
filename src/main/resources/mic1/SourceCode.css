@@ -1,0 +1,127 @@
+/* Estrutura base e elementos principais */
+/* -------------------------------- */
+
+/* Painel principal */
+.root-pane {
+    -fx-background-color: #343434;
+}
+
+/* Título do código fonte */
+.title-label {
+    -fx-font-size: 43px;
+    -fx-text-fill: white;
+    -fx-alignment: top-left; 
+}
+
+/* Container de grid principal */
+.main-grid {
+    -fx-background-color: #3C3C3C;
+    -fx-background-radius: 10;
+}
+
+/* Títulos das seções */
+.sub-title-label {
+    -fx-font-size: 43px;
+    -fx-text-fill: white;
+    -fx-alignment: center; 
+    -fx-content-display: center;
+    -fx-text-alignment: center;
+}
+
+/* Botões de ação principais (padrão SimulationControls) */
+.action-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 4, 0.2, 0, 2);
+    -fx-background-insets: 0;
+}
+.action-button:hover {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #333;
+    -fx-border-color: transparent;
+}
+.action-button:pressed {
+    -fx-background-color: derive(#ffb74d, -8%);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+    -fx-padding: 12 20 8 20;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.45), 6, 0.5, 0, 2);
+}
+
+/* Área de texto */
+/* ------------ */
+
+/* Base da área de texto */
+.text-area {
+    -fx-text-fill: white; 
+    -fx-font-size: 16px;
+    -fx-background-color: #343434;
+    -fx-border-color: #343434;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+/* Remoção de destaques de foco */
+.text-area:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Área de conteúdo */
+.text-area .content {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+    -fx-padding: 10;
+}
+
+/* Painel de rolagem */
+.text-area .scroll-pane {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+}
+
+/* Viewport da rolagem */
+.text-area .scroll-pane .viewport {
+    -fx-background-color: #343434;
+    -fx-background-radius: 10;
+    -fx-background-insets: 0;
+}
+
+/* TextField consistency (applies to single-line inputs) */
+.text-field {
+    -fx-background-color: #343434;
+    -fx-text-fill: white;
+    -fx-border-color: #343434;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+.text-field:focused {
+    -fx-border-color: #343434;
+}
+
+/* Personalização da barra de rolagem */
+/* ------------------------------- */
+
+/* Barra vertical */
+.text-area .scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 10 10 0;
+    -fx-pref-width: 12px;
+}
+
+/* Indicador de rolagem */
+.text-area .scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #7a7e8a;
+    -fx-background-radius: 10;
+}

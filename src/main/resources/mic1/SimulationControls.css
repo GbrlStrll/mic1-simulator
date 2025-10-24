@@ -1,0 +1,203 @@
+/* Estrutura base e elementos principais */
+/* -------------------------------- */
+
+
+/* =================== Layout Principal =================== */
+
+/* Painel raiz da janela de controles */
+.root-pane {
+    -fx-background-color: #343434;
+    -fx-accent: #ffb74d; /* cor principal para destaques */
+}
+
+/* Container principal dos controles */
+.content-pane {
+    -fx-background-color: #3C3C3C;
+    -fx-background-radius: 10;
+    -fx-border-color: #3C3C3C;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 15px;
+    -fx-spacing: 15px;
+}
+
+/* Título da seção de controles */
+.title-label {
+    -fx-font-size: 43px;
+    -fx-text-fill: white;
+    -fx-alignment: center-left;
+    -fx-padding: 0 0 5px 0;
+}
+
+/* =================== Barra e Botões =================== */
+
+/* Barra horizontal de botões principais */
+.button-bar {
+    -fx-spacing: 15px;
+}
+
+/* Botão de ação principal */
+.action-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 4, 0.2, 0, 2);
+    -fx-background-insets: 0;
+}
+.action-button:hover {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #333;
+    -fx-border-color: transparent;
+}
+.action-button:pressed {
+    -fx-background-color: derive(#ffb74d, -8%);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: transparent;
+    -fx-padding: 12 20 8 20;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.45), 6, 0.5, 0, 2);
+}
+
+/* Botão de ação secundário (aplicar configurações) */
+.apply-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#1e88e5, 8%) 0%, #1e88e5 100%);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 14;
+    -fx-min-width: 72px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 4, 0.2, 0, 2);
+}
+.apply-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#1e88e5, 12%) 0%, derive(#1e88e5, -4%) 100%);
+}
+.apply-button:pressed {
+    -fx-background-color: derive(#1e88e5, -8%);
+    -fx-padding: 10 14 6 14;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.40), 6, 0.5, 0, 2);
+}
+.apply-button:focused {
+    -fx-effect: dropshadow(two-pass-box, rgba(30,136,229,0.35), 8, 0.0, 0, 0);
+}
+.apply-button.small {
+    -fx-min-width: 64px;
+    -fx-font-size: 12px;
+    -fx-padding: 6 10;
+}
+
+/* Botão de ciclo (step) */
+.step-button {
+    -fx-background-color: #ffb74d;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 8 14;
+    -fx-min-width: 120px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 3, 0.2, 0, 1);
+}
+.step-button:hover {
+    -fx-background-color: derive(#ffb74d, -6%);
+}
+.step-button:pressed {
+    -fx-background-color: derive(#ffb74d, -12%);
+    -fx-padding: 10 14 6 14;
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.35), 5, 0.4, 0, 1);
+}
+.step-button:focused {
+    -fx-effect: dropshadow(two-pass-box, rgba(255,183,77,0.20), 6, 0.0, 0, 0);
+}
+
+/* =================== Configurações =================== */
+
+/* Linha de configuração (row) */
+.setting-row {
+    -fx-spacing: 10px;
+}
+/* Rótulo da configuração */
+.setting-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+/* Campo de entrada de configuração */
+.setting-field {
+    -fx-background-color: #343434;
+    -fx-background-radius: 5;
+    -fx-border-color: #343434;
+    -fx-border-radius: 5;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-font-size: 16px;
+}
+
+/* TextField e TextArea uniformes com a tabela */
+.text-field, .text-area {
+    -fx-background-color: #343434;
+    -fx-text-fill: white;
+    -fx-border-color: #343434;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+.text-field:focused, .text-area:focused {
+    -fx-border-color: #343434;
+}
+
+/* =================== Passo a Passo (Step) =================== */
+
+/* Painel de passo a passo */
+.step-pane {
+    -fx-border-color: white;
+    -fx-border-radius: 10;
+    -fx-padding: 15px;
+    -fx-spacing: 15px;
+}
+
+/* Checkbox do passo a passo */
+.step-checkbox {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 6 0 6 0;
+    -fx-cursor: hand;
+}
+.step-checkbox .box {
+    -fx-pref-width: 18px;
+    -fx-pref-height: 18px;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.28);
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 2;
+}
+.step-checkbox:hover .box {
+    -fx-border-color: rgba(255,255,255,0.55);
+}
+.step-checkbox:selected .box {
+    -fx-background-color: -fx-accent;
+    -fx-border-color: -fx-accent;
+}
+.step-checkbox:selected .mark {
+    -fx-background-color: #ffb74d;
+}
+.step-checkbox:focused .box {
+    -fx-effect: dropshadow(two-pass-box, rgba(255,183,77,0.25), 6, 0.0, 0, 0);
+}
+.step-checkbox:disabled {
+    -fx-opacity: 0.55;
+    -fx-cursor: default;
+}

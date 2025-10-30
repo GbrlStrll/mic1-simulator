@@ -48,6 +48,100 @@ O simulador abre quatro janelas diferentes:
 4. **Controls**
    - Contém os controles de simulação
 
+## Escrevendo Programas (Macroinstruções)
+
+Todo o código do programa é escrito na caixa de texto "Assembly" dentro da janela "Source Code". O simulador usa um montador (assembler) de duas passagens para traduzir seu código em binário.
+
+A sintaxe segue regras simples, inspiradas no MIC-I.
+
+### Sintaxe Básica
+A sintaxe do montador é baseada em linhas, onde cada linha pode conter um comentário, uma declaração de label, uma instrução, ou uma declaração de variável.
+
+#### 1. Comentários
+Qualquer linha que começa com uma barra (/) é tratada como um comentário e é ignorada pelo montador.
+
+```
+/ Este é um comentário.
+/ O programa começa aqui:
+INICIO: LOCO 10
+```
+
+#### 2. Instruções
+Instruções seguem o formato MNEMÔNICO [operando].
+
+Mnemônicos (como LOCO, STOD, ADDD, JUMP) devem ser escritos em letras maiúsculas.
+
+Operandos podem ser números (para LOCO, INSP, DESP) ou nomes de símbolos (labels ou variáveis).
+
+```
+LOCO 10     / Carrega a constante 10 no Acumulador
+STOD x      / Armazena o Acumulador na variável 'x'
+JUMP INICIO / Pula para o label 'INICIO'
+```
+
+#### 3. Labels (Rótulos)
+Labels são usados para marcar uma linha de instrução, permitindo que ela seja o alvo de um JUMP ou CALL.
+
+Um label é definido por um nome seguido de dois-pontos (:), colocado no início de uma linha de instrução.
+
+Exemplo: NOME:
+
+Nomes de labels não podem começar com números.
+
+```
+/ 'INICIO' é um label que marca o endereço da instrução LOCO 5
+INICIO: LOCO 5
+        STOD x
+        JUMP INICIO / Esta instrução pula de volta para o endereço de 'INICIO'
+x:
+```
+
+#### 4. Declaração de Variáveis
+Uma variável é declarada colocando um nome de símbolo seguido de dois-pontos (:) em uma linha vazia.
+
+O montador aloca automaticamente essas variáveis na memória, começando do endereço mais alto (4095) e descendo.
+
+```
+/ Declaração de três variáveis: a, b, c
+a:
+b:
+c:
+```
+
+### Organização do Programa
+Para que o programa funcione corretamente, ele deve ser organizado em duas partes:
+
+1. **Seção de Código**: Todas as suas instruções executáveis (LOCO, STOD, JUMP, etc.) devem vir primeiro. A execução do processador sempre começará no endereço 0000.
+
+2. **Seção de Dados**: Todas as suas declarações de variáveis (a:, b:, etc.) devem vir após todo o código executável.
+
+### Exemplo Completo (Soma c = a + b)
+Este programa carrega o valor 5 em a, 10 em b, soma os dois, e armazena o resultado em c.
+
+```
+/ ----- 1. SEÇÃO DE CÓDIGO -----
+/ Início do programa no endereço 0000
+
+INICIO: LOCO 5      / Carrega a constante 5 no AC
+        STOD a      / Armazena o valor de AC (5) na variável 'a'
+        
+        LOCO 10     / Carrega a constante 10 no AC
+        STOD b      / Armazena o valor de AC (10) na variável 'b'
+
+        LODD a      / Carrega o valor de 'a' (5) no AC
+        ADDD b      / Soma o valor de 'b' (10) ao AC (AC = 5 + 10)
+        STOD c      / Armazena o resultado (15) na variável 'c'
+
+/ Laço de parada: o programa fica "preso" aqui quando terminar
+FIM:    JUMP FIM
+
+/ ----- 2. SEÇÃO DE DADOS -----
+/ (Declarações de variáveis vêm no final)
+a:
+b:
+c:
+```
+
 ## Estrutura do Projeto
 
 O projeto segue uma arquitetura MVC (Model-View-Controller):

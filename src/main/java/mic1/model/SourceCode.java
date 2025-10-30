@@ -6,31 +6,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * O "Cérebro" (Backend) da janela SourceCode. (MODELO)
- * (Com a lógica do Montador CORRIGIDA)
+ * Modelo responsável pelo código-fonte exibido na janela "Source Code".
+ *
+ * Esta classe fornece:
+ * - Propriedades para ligação (data-binding) com a view.
+ * - Um montador (assembler) simplificado em duas passagens para traduzir
+ *   o código assembly em representações binárias textuais.
+ * - Função para gravar o código compilado na memória principal.
  */
 public class SourceCode {
 
-    // --- Propriedades (O "Estado" da View) ---
+    /** Código assembly editável pela UI. */
     private final StringProperty assemblyCode = new SimpleStringProperty("");
 
+    /** Texto com o código compilado ou mensagens de estado/erro. */
     private final StringProperty compiledCode = new SimpleStringProperty(
             "Pressione 'Assemble' para compilar.\n\n" +
             "Pressione 'Write code to Main Memory' para enviar os dados para a memória principal."
     );
 
-    // --- Dependências ---
-    private MainMemory mainMemory; 
+    /** Referência ao modelo de memória principal (injetada por Main). */
+    private MainMemory mainMemory;
 
-    // --- Lógica do Montador (Assembler) ---
+    /* Tabela de símbolos (labels e variáveis) construída na primeira passagem. */
     private final Map<String, Integer> symbolTable = new HashMap<>();
+
+    /* Mapeamento de mnemônicos para seus opcodes binários (como texto). */
     private final Map<String, String> opcodes = new HashMap<>();
 
     /**
-     * Construtor: Preenche a tabela de opcodes.
+     * Inicializa a tabela de opcodes conhecida pelo montador.
      */
     public SourceCode() {
-        // (O preenchimento do 'opcodes' está correto e permanece o mesmo)
         opcodes.put("LODD", "0000");
         opcodes.put("STOD", "0001");
         opcodes.put("ADDD", "0010");
@@ -56,46 +63,48 @@ public class SourceCode {
         opcodes.put("DESP", "11111110");
     }
 
-    // --- Getters das Propriedades (Para o Controller fazer o Data Binding) ---
-
+    /** Retorna a propriedade do código assembly para uso em data-binding. */
     public StringProperty assemblyCodeProperty() {
         return assemblyCode;
     }
 
+    /** Retorna a propriedade do código compilado/saida do montador. */
     public StringProperty compiledCodeProperty() {
         return compiledCode;
     }
 
-    // --- Injeção de Dependência (Chamado pelo Main.java) ---
-
+    /**
+     * Injeta a instância de MainMemory a ser usada para operações de escrita.
+     * @param memory instância de MainMemory
+     */
     public void linkMainMemory(MainMemory memory) {
         this.mainMemory = memory;
     }
 
-    // --- Lógica de Negócio (Chamado pelo Controller) ---
-
     /**
-     * O "Montador" (Assembler).
-     * Converte o texto em assemblyCode para binário em compiledCode.
-     * Esta é uma implementação "two-pass" (duas passagens) simplificada.
+     * Montador em duas passagens.
+     *
+     * Passagem 1: constrói a tabela de símbolos (labels e variáveis).
+     * Passagem 2: gera a representação binária textual das instruções.
+     *
+     * Em caso de erro, a propriedade {@code compiledCode} recebe uma
+     * mensagem de erro descritiva para exibição na UI.
      */
     public void assemble() {
         symbolTable.clear();
         StringBuilder compiledText = new StringBuilder();
         String[] lines = assemblyCode.get().split("\n");
         int currentAddress = 0;
-        int variableAddress = 4095; // Variáveis começam no topo da memória
+        int variableAddress = 4095;
 
         try {
-            // --- PASSAGEM 1 (CORRIGIDA): Construir a Tabela de Símbolos ---
-            // Esta passagem encontra TODOS os LABELS (de instrução e de variável).
+            /* PASSAGEM 1: identificar todos os símbolos (labels e variáveis). */
             for (String rawLine : lines) {
                 String line = rawLine.trim();
                 if (line.isEmpty() || line.startsWith("/")) {
-                    continue; // Ignora comentários e linhas vazias
+                    continue;
                 }
 
-                // Verifica se há um label (ex: "LOOP:", "x:")
                 if (line.contains(":")) {
                     String[] parts = line.split(":", 2);
                     String label = parts[0].trim();
@@ -106,29 +115,21 @@ public class SourceCode {
                     }
 
                     if (instruction.isEmpty()) {
-                        // É uma declaração de variável (ex: "x:")
                         symbolTable.put(label, variableAddress);
-                        variableAddress--; // Próxima variável ficará no endereço anterior
+                        variableAddress--;
                     } else {
-                        // É um label de instrução (ex: "INICIO: LOCO 5")
                         symbolTable.put(label, currentAddress);
                     }
-                    
-                    line = instruction; // Pega o resto da linha (pode ser vazio)
+
+                    line = instruction;
                 }
-                
-                // Se a linha não estiver vazia (após remover o label), 
-                // ela ocupa um endereço de instrução
+
                 if (!line.isEmpty()) {
-                    currentAddress++; // Instrução ocupa 1 palavra
+                    currentAddress++;
                 }
             }
-            // --- FIM DA PASSAGEM 1 CORRIGIDA ---
 
-
-            // --- PASSAGEM 2: Traduzir o código ---
-            // (Esta passagem não precisa de modificação, pois agora 
-            // a tabela de símbolos está correta)
+            /* PASSAGEM 2: traduzir instruções usando a tabela de símbolos. */
             currentAddress = 0;
             for (String rawLine : lines) {
                 String line = rawLine.trim();
@@ -136,9 +137,9 @@ public class SourceCode {
                     continue;
                 }
                 if (line.contains(":")) {
-                    line = line.split(":", 2)[1].trim(); // Remove o label
+                    line = line.split(":", 2)[1].trim();
                 }
-                if (line.isEmpty()) continue; // Linha era só um label (ex: "x:")
+                if (line.isEmpty()) continue;
 
                 String[] parts = line.split("\\s+", 2);
                 String mnemonic = parts[0].toUpperCase();
@@ -146,11 +147,11 @@ public class SourceCode {
 
                 if (opcodes.containsKey(mnemonic)) {
                     String opcode = opcodes.get(mnemonic);
-                    
-                    if (opcode.length() == 16) { // Instrução de 16 bits (ex: PUSH, RETN)
+
+                    if (opcode.length() == 16) {
                         compiledText.append(opcode).append(" / ").append(mnemonic).append("\n");
-                        
-                    } else if (opcode.length() == 8) { // Instrução com 'y' (ex: INSP)
+
+                    } else if (opcode.length() == 8) {
                         int y = Integer.parseInt(operand);
                         if (y < 0 || y > 255) {
                             throw new RuntimeException("Erro: Operando 'y' fora do range (0-255) na linha " + currentAddress);
@@ -158,12 +159,12 @@ public class SourceCode {
                         String y_bits = String.format("%8s", Integer.toBinaryString(y)).replace(' ', '0');
                         compiledText.append(opcode).append(y_bits).append(" / ").append(mnemonic).append(" ").append(y).append("\n");
 
-                    } else { // Instrução de 4 bits com 'x' (ex: LODD, JUMP, LOCO)
+                    } else {
                         int x;
                         String x_bits;
-                        
+
                         if (mnemonic.equals("LOCO")) {
-                            x = Integer.parseInt(operand); // LOCO usa uma constante (pode ser negativa)
+                            x = Integer.parseInt(operand);
                             String bits = Integer.toBinaryString(x);
                             if (bits.length() > 12) {
                                 x_bits = bits.substring(bits.length() - 12);
@@ -173,7 +174,6 @@ public class SourceCode {
                                 x_bits = String.format("%12s", bits).replace(' ', '0');
                             }
                         } else {
-                            // Outras (LODD, JUMP, etc.) usam um label
                             if (operand == null) {
                                 throw new RuntimeException("Erro: Mnemônico '" + mnemonic + "' requer um operando na linha " + currentAddress);
                             }
@@ -186,7 +186,7 @@ public class SourceCode {
                             }
                             x_bits = String.format("%12s", Integer.toBinaryString(x)).replace(' ', '0');
                         }
-                        
+
                         compiledText.append(opcode).append(x_bits).append(" / ").append(mnemonic).append(" ").append(operand).append(" (").append(x).append(")").append("\n");
                     }
                 } else {
@@ -202,8 +202,8 @@ public class SourceCode {
     }
 
     /**
-     * Grava o código binário (da caixa "Compiled") na Memória Principal.
-     * (Este método está CORRETO para o Problema 1 - Complemento de 2)
+     * Transfere o conteúdo da propriedade {@code compiledCode} para a
+     * MainMemory. Linhas inválidas ou mensagens de erro são ignoradas.
      */
     public void writeToMemory() {
         if (mainMemory == null) {
@@ -211,38 +211,33 @@ public class SourceCode {
             compiledCode.set("ERRO: O modelo de Memória não está conectado.\n" + compiledCode.get());
             return;
         }
-        
+
         String[] lines = compiledCode.get().split("\n");
         int address = 0;
-        
+
         try {
-            mainMemory.clearMemory(); 
-            
+            mainMemory.clearMemory();
+
             for (String line : lines) {
                 if (line.isEmpty() || line.startsWith("/") || line.startsWith("ERRO")) {
-                    continue; // Ignora comentários e erros
+                    continue;
                 }
-                
+
                 String binaryCode = line.split("/")[0].trim();
-                
+
                 if (binaryCode.length() == 16) {
-                    
-                    // Converte a string binária de 16 bits para um 'short' (C2)
                     long longVal = Long.parseLong(binaryCode, 2);
                     short shortVal = (short) longVal;
-                    
-                    // Escreve na memória.
                     mainMemory.write(address, shortVal);
-                    
                     address++;
                 }
             }
-            
+
             if (!compiledCode.get().startsWith("ERRO")) {
                 compiledCode.set(compiledCode.get() + "\n\n// Código gravado na Memória Principal");
             }
-            mainMemory.notifyUpdate(); 
-            
+            mainMemory.notifyUpdate();
+
         } catch (Exception e) {
             compiledCode.set("ERRO AO GRAVAR NA MEMÓRIA:\n" + e.getMessage());
         }

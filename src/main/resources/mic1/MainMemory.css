@@ -72,7 +72,7 @@
 
 /* Efeito zebrado nas linhas */
 .table-view .table-row-cell:odd {
-    -fx-background-color: #4A4A52; 
+    -fx-background-color: #4e4e52; 
 }
 
 .table-view .table-row-cell:even {

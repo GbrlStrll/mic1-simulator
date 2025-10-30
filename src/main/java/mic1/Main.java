@@ -1,123 +1,102 @@
 package mic1;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.image.Image;
 
+// --- Importações FXML (para o método 'abrirJanela' antigo) ---
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
+// --- Importa os Modelos ---
+import mic1.model.SourceCode;
+import mic1.model.MainMemory; 
+// (CPU e SimulationControls ainda não migrados)
+// import mic1.model.CPU; 
+// import mic1.model.SimulationControls;
 
-
-//import mic1.model.*; // Importa todos os modelos
-//import mic1.view.*;  // Importa todas as views
+// --- Importa as Views específicas (MVC) ---
+import mic1.view.SourceCodeView; 
+import mic1.view.MainMemoryView; // <<< MUDANÇA: Importa a nova MainMemoryView
 
 /**
  * O "Lançador" (Aplicação Principal)
  *
- * O QUE FAZER AQUI:
- *
- * 1. No método 'init()':
- * a. Carregar recursos globais (como o 'iconeAplicativo').
- * b. CRIAR AS INSTÂNCIAS (new) de todos os seus Modelos (ex: cpuModel = new CPU();).
- * c. Se os modelos precisam conversar (ex: CPU precisa da Memória),
- * passar a referência para eles aqui (ex: cpuModel.linkMemory(memoryModel);).
- *
- * 2. No método 'start()':
- * a. CRIAR AS INSTÂNCIAS (new) de todas as suas Views
- * (ex: CpuView cpuView = new CpuView(cpuModel);).
- * b. Chamar o método '.show()' de cada View, passando o ícone e
- * as coordenadas de posicionamento.
- * c. (O método antigo 'abrirJanela' não é mais necessário,
- * pois cada View agora sabe como se abrir).
- */
-
-
-
-
-/**
- * Classe principal do simulador MIC-1.
- * Responsável por inicializar a interface gráfica e gerenciar as janelas do aplicativo.
+ * Agora usando uma abordagem HÍBRIDA:
+ * - Janelas SourceCode e MainMemory: Usam a arquitetura MVC (Model-View-Controller).
+ * - Outras Janelas: Usam o carregamento direto de FXML via 'abrirJanela'.
  */
 public class Main extends Application {
 
-    /** Ícone usado em todas as janelas do aplicativo */
     private Image iconeAplicativo;
 
-    /**
-     * Inicialização dos recursos do aplicativo.
-     * Executado antes da interface gráfica ser criada.
-     * Carrega recursos estáticos como o ícone do aplicativo.
-     */
+    // --- Instâncias dos Modelos ---
+    // Criados no init() e passados para as Views/Controllers necessários
+    private SourceCode sourceModel;
+    private MainMemory memoryModel; 
+    // private CPU cpuModel; // Você criará estes quando migrar as outras janelas
+    // private SimulationControls controlsModel;
+
     @Override
     public void init() {
+        // 1. Carrega o ícone (como antes)
         try {
             String caminhoIcone = "/mic1/icons/AppIcon.png";
             iconeAplicativo = new Image(getClass().getResourceAsStream(caminhoIcone));
+            if (iconeAplicativo == null || iconeAplicativo.isError()) {
+                throw new IOException("Ícone não encontrado ou corrompido.");
+            }
         } catch (Exception e) {
             System.err.println("Erro ao carregar o ícone: " + e.getMessage());
-            // Aplicativo continuará sem ícone em caso de falha
         }
+
+        // --- Cria as instâncias dos Modelos ---
+        sourceModel = new SourceCode();
+        
+        // MainMemory NÃO é mais Singleton, é criado aqui
+        memoryModel = new MainMemory(); 
+        
+        // --- Conecta os Modelos ---
+        sourceModel.linkMainMemory(memoryModel); 
+        
+        // (Quando migrar a CPU, você faria algo como:)
+        // cpuModel = new CPU();
+        // cpuModel.linkMemory(memoryModel); 
     }
 
-
-    /**
-     * Ponto de entrada principal da interface gráfica.
-     * Inicializa e exibe todas as janelas do simulador.
-     * 
-     * @param stage Janela principal fornecida pelo JavaFX
-     */
     @Override
     public void start(Stage stage) { 
-        // Configuração do ícone na janela principal
-        if (iconeAplicativo != null) {
-            stage.getIcons().add(iconeAplicativo);
-        }
+        
+        // --- NOVO: Usa SourceCodeView para a janela principal ---
+        SourceCodeView sourceView = new SourceCodeView(sourceModel);
+        // Passa o 'stage' principal para ser reutilizado
+        sourceView.show(stage, iconeAplicativo, 1060, 0); 
 
-        // Inicialização da janela do código fonte
+        // --- <<< MUDANÇA: Usa MainMemoryView para a janela de Memória >>> ---
+        // A MainMemoryView irá carregar o FXML e injetar o 'memoryModel'
+        // no MainMemoryController.
+        MainMemoryView memoryView = new MainMemoryView(memoryModel);
+        memoryView.show(iconeAplicativo, 250, 0); // (Posição X/Y original)
+
+
+        // --- MANTIDO: Carrega as outras 2 janelas (CPU, Controls) do jeito antigo ---
         try {
-            // Carrega o layout FXML
-            Parent root = FXMLLoader.load(getClass().getResource("/mic1/SourceCode.fxml"));
-            Scene scene = new Scene(root);
-            
-            // Configura a janela
-            stage.setTitle("Source Code - MIC-1 Simulator");
-            stage.setScene(scene);
-            stage.setResizable(true);
-            
-            // Posiciona no canto superior direito
-            stage.setX(1060); 
-            stage.setY(0); 
-            
-            // Exibe a janela
-            stage.show();
-
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar SourceCode.fxml:");
-            e.printStackTrace();
-        }
-
-        // Inicialização das janelas secundárias
-        try {
-            // Janela da CPU (posicionada à esquerda, embaixo)
+            // (CPU.fxml ainda será carregado da forma antiga)
             abrirJanela("/mic1/CPU.fxml", "CPU - MIC-1 Simulator", 250, 490);
         } catch (IOException e) {
             System.err.println("Erro ao carregar CPU.fxml:");
             e.printStackTrace();
         }
         
-        try {
-            // Janela da memória principal (posicionada à esquerda, em cima)
-            abrirJanela("/mic1/MainMemory.fxml", "Main Memory - MIC-1 Simulator", 250, 0);
-        } catch (IOException e) {
-            System.err.println("Erro ao carregar MainMemory.fxml:");
-            e.printStackTrace();
-        }
+        // <<< MUDANÇA: A abertura do MainMemory.fxml foi REMOVIDA daqui >>>
+        // try {
+        //     abrirJanela("/mic1/MainMemory.fxml", ...); // <<< REMOVIDO
+        // } catch ...
 
         try {
-            // Janela de controles (posicionada à direita, embaixo)
+            // (SimulationControls.fxml ainda será carregado da forma antiga)
             abrirJanela("/mic1/SimulationControls.fxml", "Controls - MIC-1 Simulator", 1060, 540);
         } catch (IOException e) {
             System.err.println("Erro ao carregar SimulationControls.fxml:");
@@ -126,44 +105,38 @@ public class Main extends Application {
     }
 
     /**
-     * Cria e configura uma nova janela do simulador.
-     * 
-     * @param fxmlFile Caminho do arquivo FXML com o layout da janela
-     * @param title Título a ser exibido na barra de título da janela
-     * @param x Posição horizontal da janela na tela
-     * @param y Posição vertical da janela na tela
-     * @throws IOException Se houver erro ao carregar o arquivo FXML
+     * Método auxiliar MANTIDO para as janelas NÃO MIGRADA AINDA (CPU, Controls).
+     * Cria e exibe uma NOVA janela (Stage) diretamente do FXML.
+     *
+     * IMPORTANTE: Este método NÃO injeta modelos. Os controladores carregados
+     * por este método (CPUController, SimulationControlsController) devem
+     * usar Singletons ou precisarão de modificação manual.
      */
     private void abrirJanela(String fxmlFile, String title, double x, double y) throws IOException {
-        // Carregamento do layout
-        Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
         
-        // Criação da nova janela
+        // Usa FXMLLoader diretamente aqui
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        Parent root = loader.load();
+        
         Stage novoStage = new Stage();
 
-        // Configuração do ícone
         if (iconeAplicativo != null) {
             novoStage.getIcons().add(iconeAplicativo);
         }
         
-        // Configuração da janela
         novoStage.setTitle(title);
         novoStage.setScene(new Scene(root));
         novoStage.setResizable(true);
-
-        // Posicionamento na tela
         novoStage.setX(x);
         novoStage.setY(y);
         
-        // Exibição da janela
         novoStage.show();
+        
+        // NOTA: Como não estamos injetando modelos aqui, os controladores
+        // de CPU e SimulationControls (se precisarem) teriam que usar
+        // um padrão Singleton para acessar o 'memoryModel' ou 'cpuModel'.
     }
 
-    /**
-     * Método principal que inicia o aplicativo.
-     * 
-     * @param args Argumentos da linha de comando (não utilizados)
-     */
     public static void main(String[] args) {
         launch(args);
     }

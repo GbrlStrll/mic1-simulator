@@ -1,35 +1,52 @@
 package mic1.model;
 
-//import javafx.beans.property.StringProperty;
-//import javafx.collections.ObservableList;
-// ... (outros imports de 'javafx.beans.property')
+// Importe os modelos que a CPU precisa conhecer
+import mic1.model.MainMemory;
 
 /**
- * O "Cérebro" (Backend)
+ * O "Cérebro" (Backend) da CPU. (MODELO)
  *
- * O QUE FAZER AQUI:
- * 1. Definir os dados da sua aplicação (ex: registradores, status da simulação, log).
- * 2. Usar Propriedades JavaFX (StringProperty, IntegerProperty, ObservableList)
- * para guardar esses dados. Isso permite que a View "assista" a mudanças.
- * 3. Escrever toda a LÓGICA DE NEGÓCIO (ex: runCycle(), decodeInstruction(), etc.).
- * 4. NÃO importar nada do 'javafx.scene' (como Button, Label, TableView).
- * Este arquivo não deve saber que uma interface gráfica existe.
- * 5. Fornecer getters públicos para as Propriedades (ex: cyclesProperty())
- * e Listas (ex: getRegisterList()).
- *
- * Exemplo:
- * private final IntegerProperty cycles = new SimpleIntegerProperty(0);
- * private final ObservableList<Register> registerList = FXCollections.observableArrayList();
- *
- * public void runCycle() {
- * // ... lógica ...
- * cycles.set(cycles.get() + 1);
- * }
- *
- * public IntegerProperty cyclesProperty() { return cycles; }
- * public ObservableList<Register> getRegisterList() { return registerList; }
+ * Responsabilidades:
+ * 1. Manter o estado dos registradores (PC, AC, SP, IR, etc.).
+ * 2. Conter a lógica para executar o ciclo de busca/decodificação/execução.
+ * 3. Expor propriedades (Properties) dos registradores para a View (CpuView).
  */
-
 public class CPU {
-    
+
+    // --- Dependências ---
+    private MainMemory memory;
+
+    // TODO: Adicionar os registradores como JavaFX Properties
+    // Ex: private final IntegerProperty pc = new SimpleIntegerProperty(0);
+    // Ex: private final IntegerProperty ac = new SimpleIntegerProperty(0);
+    // Ex: private final IntegerProperty sp = new SimpleIntegerProperty(4095);
+
+    /**
+     * Construtor da CPU.
+     */
+    public CPU() {
+        // Inicialize os registradores aqui
+        System.out.println("Modelo da CPU criado.");
+    }
+
+    /**
+     * (MÉTODO ADICIONADO)
+     * Permite que o Main.java injete a Memória Principal na CPU.
+     * Isso corrige o erro em Main.java.
+     */
+    public void linkMemory(MainMemory memory) {
+        this.memory = memory;
+    }
+
+    // TODO: Implementar a lógica principal da CPU
+    // public void executeCycle() {
+    //     if (memory == null) return;
+    //     // 1. Fetch (memory.read(pc.get()))
+    //     // 2. Decode
+    //     // 3. Execute
+    // }
+
+    // TODO: Adicionar os getters para as Properties (para o Controller fazer bind)
+    // public IntegerProperty pcProperty() { return pc; }
+    // public IntegerProperty acProperty() { return ac; }
 }

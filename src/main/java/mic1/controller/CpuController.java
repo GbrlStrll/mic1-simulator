@@ -1,43 +1,53 @@
 package mic1.controller;
 
-//import javafx.fxml.FXML;
-//import javafx.scene.control.Label;
-//import javafx.scene.control.TableView;
-//import mic1.model.CPU; // Importa o Modelo
+import javafx.fxml.FXML;
+// Importe aqui os componentes do JavaFX que você usará (ex: Label, TextField)
+// Ex: import javafx.scene.control.Label;
+import mic1.model.CPU; // Importa o Modelo
 
 /**
- * A "Ponte" (Controlador)
+ * O "Ponte" (Controlador) para a janela da CPU.
  *
- * O QUE FAZER AQUI:
- * 1. Usar '@FXML' para criar uma variável Java para CADA componente do FXML
- * que você precisa acessar (ex: @FXML private TableView registerTable;).
- *
- * 2. O nome da variável DEVE ser igual ao 'fx:id' no FXML.
- *
- * 3. Criar um método 'setModel(CPU model)'. Este método será chamado
- * pela classe 'CpuView' para "injetar" o cérebro.
- *
- * 4. Dentro do 'setModel', fazer o "Data Binding": ligar os componentes @FXML
- * às propriedades do modelo.
- * Ex: 'cyclesLabel.textProperty().bind(model.cyclesProperty().asString("Cycles: %d"))'
- * Ex: 'registerTable.setItems(model.getRegisterList())'
- *
- * 5. Implementar 'Initializable' (opcional) para configurar coisas que NÃO
- * dependem do modelo (como o 'PropertyValueFactory' das colunas da tabela).
- *
- * 6. Criar métodos '@FXML' para os eventos (ex: botões) e, dentro deles,
- * chamar a lógica do modelo (ex: 'model.runCycle()').
+ * Responsabilidades:
+ * 1. Conectar os componentes @FXML (definidos no CPU.fxml) com o Modelo.
+ * 2. Ligar (bind) as propriedades do Modelo (ex: pc, ac) aos componentes da View.
+ * 3. (Este controlador geralmente não lida com cliques de botão,
+ * pois a CPU é controlada pelo SimulationControls).
  */
-
 public class CpuController {
-    // Exemplo de variáveis @FXML
-    // @FXML private TableView registerTable;
-    // @FXML private Label cyclesLabel;
 
-    // Exemplo do 'setModel'
-    // private CPU cpuModel;
-    // public void setModel(CPU model) {
-    //     this.cpuModel = model;
-    //     cyclesLabel.textProperty().bind(cpuModel.cyclesProperty().asString("Cycles: %d"));
-    // }
+    // --- Componentes da View (Injetados pelo FXML) ---
+    // TODO: Adicione os @FXML para os Labels/TextFields da sua CPU.fxml
+    // Exemplo:
+    // @FXML
+    // private Label pcValueLabel;
+    //
+    // @FXML
+    // private Label acValueLabel;
+    //
+    // @FXML
+    // private Label spValueLabel;
+
+
+    // --- Referência ao Modelo ---
+    private CPU cpuModel;
+
+    /**
+     * Este método é o "ponto de entrada" principal.
+     * Ele é chamado pela classe CpuView para injetar o "cérebro" (o Modelo).
+     *
+     * ISSO CORRIGE O ERRO "setModel is undefined".
+     */
+    public void setModel(CPU model) {
+        this.cpuModel = model;
+
+        // --- A MÁGICA (Data Binding) ---
+        // TODO: Ligue as propriedades do seu modelo de CPU aos seus @FXML Labels
+        //
+        // Exemplo (se você tiver um 'pcProperty()' no seu modelo CPU.java):
+        // pcValueLabel.textProperty().bind(cpuModel.pcProperty().asString());
+        // acValueLabel.textProperty().bind(cpuModel.acProperty().asString());
+        // spValueLabel.textProperty().bind(cpuModel.spProperty().asString());
+    }
+
 }

@@ -90,3 +90,31 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
+
+/* Barra vertical */
+.table-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 10 10 0;
+    -fx-pref-width: 12px;
+}
+
+/* Barra horizontal (para consistência) */
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 0 10 10;
+    -fx-pref-height: 12px;
+}
+
+/* Indicador de rolagem (thumb) */
+.table-view .scroll-bar .thumb {
+    -fx-background-color: #7a7e8a;
+    -fx-background-radius: 10;
+}
+
+/* Ocultar botões de seta */
+.table-view .scroll-bar .increment-button,
+.table-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}

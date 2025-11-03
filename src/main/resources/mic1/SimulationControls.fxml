@@ -29,10 +29,10 @@
                   
                   <HBox styleClass="button-bar">
                      <children>
-                        <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PLAY" HBox.hgrow="ALWAYS" />
-                        <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PAUSE" HBox.hgrow="ALWAYS" />
-                        <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="STOP" HBox.hgrow="ALWAYS" />
-                        <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="RESET" HBox.hgrow="ALWAYS" />
+                        <Button text="PLAY" fx:id="playButton" onAction="#handlePlayButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
+                        <Button text="PAUSE" fx:id="pauseButton" onAction="#handlePauseButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
+                        <Button text="STOP" fx:id="stopButton" onAction="#handleStopButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
+                        <Button text="RESET" fx:id="resetButton" onAction="#handleResetButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="25.0" />
@@ -42,16 +42,16 @@
                   <HBox alignment="CENTER_LEFT" styleClass="setting-row">
                      <children>
                         <Label styleClass="setting-label" text="Pause between subcycles (milliseconds):" />
-                        <TextField alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
-                        <Button prefWidth="75.0" styleClass="apply-button" text="Apply" />
+                        <TextField fx:id="subcycleSpeedField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                        <Button text="Apply" fx:id="subcycleApplyButton" onAction="#handleSubcycleApply" prefWidth="75.0" styleClass="apply-button" />
                      </children>
                   </HBox>
                   
                   <HBox alignment="CENTER_LEFT" styleClass="setting-row">
                      <children>
                         <Label styleClass="setting-label" text="Pause when on PC:" />
-                        <TextField alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
-                        <Button prefWidth="75.0" styleClass="apply-button" text="Apply" />
+                        <TextField fx:id="pcPauseField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                        <Button text="Apply" fx:id="pcPauseApplyButton" onAction="#handlePcPauseApply" prefWidth="75.0" styleClass="apply-button" />
                      </children>
                   </HBox>
                   
@@ -60,8 +60,8 @@
                      
                         <VBox alignment="CENTER_LEFT" styleClass="step-pane">
                            <children>
-                              <CheckBox styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
-                              <Button maxWidth="Infinity" styleClass="step-button" text="Go through a cycle" />
+                              <CheckBox fx:id="stepModeCheckBox" styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
+                              <Button text="Go through a cycle" fx:id="stepCycleButton" onAction="#handleStepCycle" maxWidth="Infinity" styleClass="step-button" />
                            </children>
                         </VBox>
                         

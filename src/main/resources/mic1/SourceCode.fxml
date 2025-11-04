@@ -10,7 +10,11 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
+<<<<<<< Updated upstream
 <AnchorPane prefHeight="500.0" prefWidth="600.0" styleClass="root-pane" stylesheets="@SourceCode.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+=======
+<AnchorPane prefHeight="500.0" prefWidth="600.0" styleClass="root-pane" stylesheets="@SourceCode.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mic1.controller.SourceCodeController">
+>>>>>>> Stashed changes
    <children>
    
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -36,13 +40,18 @@
                   <VBox>
                      <children>
                         <Label maxWidth="Infinity" prefHeight="64.0" styleClass="sub-title-label" text="Assembly" />
+<<<<<<< Updated upstream
                         <TextArea wrapText="true" VBox.vgrow="ALWAYS" />
+=======
+                        <TextArea fx:id="assemblyArea" wrapText="true" VBox.vgrow="ALWAYS" />
+>>>>>>> Stashed changes
                      </children>
                   </VBox>
-                  
+
                   <VBox GridPane.columnIndex="1">
                      <children>
                         <Label maxWidth="Infinity" prefHeight="64.0" styleClass="sub-title-label" text="Compiled" />
+<<<<<<< Updated upstream
                         <TextArea editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
@@ -50,6 +59,15 @@
                   <Button maxWidth="Infinity" prefHeight="51.0" styleClass="action-button" text="Assemble" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                           
                   <Button maxWidth="Infinity" prefHeight="51.0" styleClass="action-button" text="Write code to Main Memory" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+=======
+                        <TextArea fx:id="compiledArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS" />
+                     </children>
+                  </VBox>
+
+                  <Button fx:id="assembleButton" onAction="#handleAssemble" maxWidth="Infinity" prefHeight="51.0" styleClass="action-button" text="Assemble" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+                  <Button fx:id="writeMemoryButton" onAction="#handleWriteMemory" maxWidth="Infinity" prefHeight="51.0" styleClass="action-button" text="Write code to Main Memory" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+>>>>>>> Stashed changes
                   
                </children>
                <padding>

@@ -9,7 +9,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<<<<<<< Updated upstream
 <AnchorPane prefHeight="450.0" prefWidth="600.0" styleClass="root-pane" stylesheets="@SimulationControls.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+=======
+<AnchorPane prefHeight="450.0" prefWidth="600.0" styleClass="root-pane" stylesheets="@SimulationControls.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mic1.controller.SimulationControlsController">
+>>>>>>> Stashed changes
    <children>
       
       <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -29,10 +33,17 @@
                   
                   <HBox styleClass="button-bar">
                      <children>
+<<<<<<< Updated upstream
                         <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PLAY" HBox.hgrow="ALWAYS" />
                         <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PAUSE" HBox.hgrow="ALWAYS" />
                         <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="STOP" HBox.hgrow="ALWAYS" />
                         <Button maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="RESET" HBox.hgrow="ALWAYS" />
+=======
+                        <Button fx:id="playButton" onAction="#handlePlay" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PLAY" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="pauseButton" onAction="#handlePause" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PAUSE" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="stopButton" onAction="#handleStop" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="STOP" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="resetButton" onAction="#handleReset" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="RESET" HBox.hgrow="ALWAYS" />
+>>>>>>> Stashed changes
                      </children>
                      <VBox.margin>
                         <Insets bottom="25.0" />
@@ -42,16 +53,26 @@
                   <HBox alignment="CENTER_LEFT" styleClass="setting-row">
                      <children>
                         <Label styleClass="setting-label" text="Pause between subcycles (milliseconds):" />
+<<<<<<< Updated upstream
                         <TextField alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
                         <Button prefWidth="75.0" styleClass="apply-button" text="Apply" />
+=======
+                        <TextField fx:id="pauseField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleApplyPause" prefWidth="75.0" styleClass="apply-button" text="Apply" />
+>>>>>>> Stashed changes
                      </children>
                   </HBox>
-                  
+
                   <HBox alignment="CENTER_LEFT" styleClass="setting-row">
                      <children>
                         <Label styleClass="setting-label" text="Pause when on PC:" />
+<<<<<<< Updated upstream
                         <TextField alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
                         <Button prefWidth="75.0" styleClass="apply-button" text="Apply" />
+=======
+                        <TextField fx:id="pauseOnPCField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                        <Button onAction="#handleApplyPausePC" prefWidth="75.0" styleClass="apply-button" text="Apply" />
+>>>>>>> Stashed changes
                      </children>
                   </HBox>
                   
@@ -60,8 +81,13 @@
                      
                         <VBox alignment="CENTER_LEFT" styleClass="step-pane">
                            <children>
+<<<<<<< Updated upstream
                               <CheckBox styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
                               <Button maxWidth="Infinity" styleClass="step-button" text="Go through a cycle" />
+=======
+                              <CheckBox fx:id="stepModeCheckbox" styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
+                              <Button fx:id="stepButton" onAction="#handleStep" maxWidth="Infinity" styleClass="step-button" text="Go through a cycle" />
+>>>>>>> Stashed changes
                            </children>
                         </VBox>
                         

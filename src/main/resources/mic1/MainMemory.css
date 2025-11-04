@@ -89,6 +89,7 @@
     -fx-text-fill: white;
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-alignment: center;
 }
 
 /* Barra vertical */

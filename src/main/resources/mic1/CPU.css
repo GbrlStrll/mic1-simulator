@@ -135,6 +135,7 @@
     -fx-text-fill: white;
     -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-alignment: center;
 }
 
 /* Área de log (textarea) */

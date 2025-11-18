@@ -1,0 +1,19 @@
+INIT:
+    A=0, C=AC, PASSA, ENC
+
+WRITE_ADDR_0:
+    A=0, C=MAR, PASSA, MAR
+    A=+1, B=+1, C=MBR, ADD, MBR, WR
+
+WRITE_ADDR_1:
+    A=+1, C=MAR, PASSA, MAR
+    A=+1, B=+1, C=AC, ADD, ENC
+    A=AC, B=+1, C=MBR, ADD, MBR, WR
+
+WRITE_ADDR_2:
+    A=+1, B=+1, C=MAR, ADD, MAR
+    A=AC, B=+1, C=AC, ADD, ENC
+    A=AC, B=+1, C=MBR, ADD, MBR, WR
+
+DONE:
+    GOTO DONE

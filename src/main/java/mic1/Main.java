@@ -1,108 +1,152 @@
 package mic1;
 
 import javafx.application.Application;
-import javafx.stage.Stage;
-import java.io.IOException;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.stage.Stage;
+import mic1.controller.*;
+import mic1.model.*;
 
-// --- Importa os Modelos ---
-import mic1.model.SourceCode;
-import mic1.model.MainMemory; 
-import mic1.model.CPU; 
-import mic1.model.SimulationControls;
+import java.io.IOException;
 
-// --- Importa as Views específicas (MVC) ---
-import mic1.view.SourceCodeView; 
-import mic1.view.MainMemoryView; 
-import mic1.view.CpuView;
-import mic1.view.SimulationControlsView;
-
-/**
- * O "Lançador" (Aplicação Principal)
- *
- * Agora 100% migrado para a arquitetura MVC (Model-View-Controller).
- * * Responsabilidades:
- * 1. (init) Criar os Modelos (os "cérebros").
- * 2. (init) Injetar dependências entre os Modelos.
- * 3. (start) Criar as Views (as "janelas").
- * 4. (start) Injetar o Modelo correspondente em cada View.
- */
 public class Main extends Application {
-
     private Image iconeAplicativo;
 
-    // --- Instâncias dos Modelos ---
-    // Criados no init() e passados para as Views/Controllers necessários
-    private SourceCode sourceModel;
-    private MainMemory memoryModel; 
-    private CPU cpuModel; 
-    private SimulationControls controlsModel;
+    private CPU cpu;
+    private MainMemory memory;
+    private SourceCode sourceCode;
+    private SimulationControls controls;
 
-    /**
-     * Etapa 1: Criação e conexão dos Modelos (Back-end)
-     */
     @Override
     public void init() {
-        // 1. Carrega o ícone
         try {
             String caminhoIcone = "/mic1/icons/AppIcon.png";
             iconeAplicativo = new Image(getClass().getResourceAsStream(caminhoIcone));
-            if (iconeAplicativo == null || iconeAplicativo.isError()) {
-                throw new IOException("Ícone não encontrado ou corrompido.");
-            }
         } catch (Exception e) {
             System.err.println("Erro ao carregar o ícone: " + e.getMessage());
+            // Aplicativo continuará sem ícone em caso de falha
         }
 
-        // --- 2. Cria as instâncias de TODOS os Modelos ---
-        sourceModel = new SourceCode();
-        memoryModel = new MainMemory(); 
-        cpuModel = new CPU();
-        controlsModel = new SimulationControls();
-        
-        // --- 3. Conecta os Modelos (Injeção de Dependência) ---
-        
-        // O SourceCode precisa da Memória para gravar o programa
-        sourceModel.linkMainMemory(memoryModel); 
-        
-        // A CPU precisa da Memória para ler/escrever durante a execução
-        cpuModel.linkMemory(memoryModel); 
-        
-        // Os Controles orquestram tudo:
-        // (Assumindo que você criará estes métodos no SimulationControls.java)
-        controlsModel.linkCpu(cpuModel);         // Para Play, Pause, Step
-        controlsModel.linkMemory(memoryModel);  // Para Resetar a memória
-        controlsModel.linkSourceCode(sourceModel); // Para Resetar o código (se necessário)
+        cpu = new CPU();
+        memory = new MainMemory();
+        sourceCode = new SourceCode();
+        controls = new SimulationControls();
+
+        cpu.setMemory(memory);
     }
 
-    /**
-     * Etapa 2: Criação e exibição das Views (Front-end)
-     */
     @Override
-    public void start(Stage stage) { 
-        
-        // --- Cria e exibe a View do SourceCode ---
-        // (Usa o 'stage' principal)
-        SourceCodeView sourceView = new SourceCodeView(sourceModel);
-        sourceView.show(stage, iconeAplicativo, 1060, 0); 
+    public void start(Stage stage) {
+        if (iconeAplicativo != null) {
+            stage.getIcons().add(iconeAplicativo);
+        }
 
-        // --- Cria e exibe a View da MainMemory ---
-        MainMemoryView memoryView = new MainMemoryView(memoryModel);
-        memoryView.show(iconeAplicativo, 250, 0);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mic1/SourceCode.fxml"));
+            Parent root = loader.load();
+            SourceCodeController controller = loader.getController();
+            controller.setModel(sourceCode);
+            controller.setCPU(cpu);
 
-        // --- Cria e exibe a View da CPU ---
-        CpuView cpuView = new CpuView(cpuModel);
-        cpuView.show(iconeAplicativo, 250, 490); // (Posição X/Y original)
+            Scene scene = new Scene(root);
+            stage.setTitle("Source Code - MIC-1 Simulator");
+            stage.setScene(scene);
+            stage.setResizable(true);
+            stage.setX(1060);
+            stage.setY(0);
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar SourceCode.fxml:");
+            e.printStackTrace();
+        }
 
-        // --- Cria e exibe a View dos Controles ---
-        SimulationControlsView controlsView = new SimulationControlsView(controlsModel);
-        controlsView.show(iconeAplicativo, 1060, 540); // (Posição X/Y original)
+        try {
+            abrirJanelaCPU("/mic1/CPU.fxml", "CPU - MIC-1 Simulator", 250, 490);
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar CPU.fxml:");
+            e.printStackTrace();
+        }
+
+        try {
+            abrirJanelaMemoria("/mic1/MainMemory.fxml", "Main Memory - MIC-1 Simulator", 250, 0);
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar MainMemory.fxml:");
+            e.printStackTrace();
+        }
+
+        try {
+            abrirJanelaControles("/mic1/SimulationControls.fxml", "Controls - MIC-1 Simulator", 1060, 540);
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar SimulationControls.fxml:");
+            e.printStackTrace();
+        }
+    }
+
+    private void abrirJanelaCPU(String fxmlFile, String title, double x, double y) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        Parent root = loader.load();
+        CpuController controller = loader.getController();
+        controller.setModel(cpu);
+
+        Stage novoStage = new Stage();
+        if (iconeAplicativo != null) {
+            novoStage.getIcons().add(iconeAplicativo);
+        }
+
+        novoStage.setTitle(title);
+        novoStage.setScene(new Scene(root));
+        novoStage.setResizable(true);
+        novoStage.setX(x);
+        novoStage.setY(y);
+        novoStage.show();
+    }
+
+    private void abrirJanelaMemoria(String fxmlFile, String title, double x, double y) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        Parent root = loader.load();
+        MainMemoryController controller = loader.getController();
+        controller.setModel(memory);
+
+        Stage novoStage = new Stage();
+        if (iconeAplicativo != null) {
+            novoStage.getIcons().add(iconeAplicativo);
+        }
+
+        novoStage.setTitle(title);
+        novoStage.setScene(new Scene(root));
+        novoStage.setResizable(true);
+        novoStage.setX(x);
+        novoStage.setY(y);
+        novoStage.show();
+    }
+
+    private void abrirJanelaControles(String fxmlFile, String title, double x, double y) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+        Parent root = loader.load();
+        SimulationControlsController controller = loader.getController();
+        controller.setModel(controls);
+        controller.setCPU(cpu);
+        controller.setMemory(memory);
+
+        Stage novoStage = new Stage();
+        if (iconeAplicativo != null) {
+            novoStage.getIcons().add(iconeAplicativo);
+        }
+
+        novoStage.setTitle(title);
+        novoStage.setScene(new Scene(root));
+        novoStage.setResizable(true);
+        novoStage.setX(x);
+        novoStage.setY(y);
+        novoStage.show();
     }
 
     /**
-     * (O método auxiliar 'abrirJanela' não é mais necessário e foi removido)
+     * Método principal que inicia o aplicativo.
+     * * @param args Argumentos da linha de comando (não utilizados)
      */
-
     public static void main(String[] args) {
         launch(args);
     }

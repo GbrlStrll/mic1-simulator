@@ -1,0 +1,17 @@
+START:
+    A=0, C=A, PASSA, ENC
+    A=0, C=B, PASSA, ENC
+
+WRITE_LOOP:
+    A=B, B=+1, C=B, ADD, ENC
+    A=B, C=MAR, PASSA, MAR
+    A=B, C=MBR, PASSA, MBR, WR
+
+    A=A, B=+1, C=A, ADD, ENC
+
+    A=A, B=-1, C=AC, ADD, ENC
+    B=AC, IFZ, GOTO END
+    GOTO WRITE_LOOP
+
+END:
+    GOTO END

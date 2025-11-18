@@ -1,135 +1,157 @@
 package mic1.controller;
-
+    
+import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
-import mic1.model.SimulationControls; // Importa o Modelo
+import mic1.model.CPU;
+import mic1.model.MainMemory;
+import mic1.model.SimulationControls;
 
-/**
- * O "Ponte" (Controlador) para a janela de Controles de Simulação.
- *
- * Responsabilidades:
- * 1. Conectar os componentes @FXML (definidos no SimulationControls.fxml) com o Modelo.
- * 2. Ligar (bind) as propriedades do Modelo (ex: simulationSpeed) aos componentes da View.
- * 3. Chamar a lógica do Modelo (ex: controlsModel.play()) quando um botão é clicado.
- */
-public class SimulationControlsController {
+import java.net.URL;
+import java.util.ResourceBundle;
 
-    // --- Componentes da View (Injetados pelo FXML) ---
-    // TODO: Adicione os @FXML para os Botões, TextFields, etc.
-    @FXML
-    private Button playButton;
+public class SimulationControlsController implements Initializable {
+    @FXML private Button playButton;
+    @FXML private Button pauseButton;
+    @FXML private Button stopButton;
+    @FXML private Button resetButton;
+    @FXML private TextField pauseField;
+    @FXML private TextField pauseOnPCField;
+    @FXML private CheckBox stepModeCheckbox;
+    @FXML private Button stepButton;
 
-    @FXML
-    private Button pauseButton;
-
-    @FXML
-    private Button stopButton;
-
-    @FXML
-    private Button resetButton;
-    
-    @FXML
-    private TextField subcycleSpeedField;
-
-    @FXML
-    private Button subcycleApplyButton;
-
-    @FXML
-    private TextField pcPauseField;
-
-    @FXML 
-    private Button pcPauseApplyButton;
-
-    @FXML 
-    private CheckBox stepModeCheckBox;
-
-    @FXML 
-    private Button stepCycleButton;
-
-    // --- Referência ao Modelo ---
     private SimulationControls controlsModel;
+    private CPU cpu;
+    private MainMemory memory;
+    private SimulationTimer simulationTimer;
 
-    /**
-     * Este método é o "ponto de entrada" principal.
-     * Ele é chamado pela classe SimulationControlsView para injetar o "cérebro" (o Modelo).
-     *
-     * ISSO CORRIGE O ERRO "setModel is undefined".
-     */
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pauseField.setText("100");
+        pauseOnPCField.setText("-1");
+    }
+
     public void setModel(SimulationControls model) {
-    this.controlsModel = model;
+        this.controlsModel = model;
+        stepModeCheckbox.selectedProperty().bindBidirectional(model.stepByStepModeProperty());
+    }
 
-    // --- A MÁGICA (Data Binding) ---
-    // (Preenchendo o segundo TODO)
-    // Isso sincroniza a UI com o Modelo automaticamente.
+    public void setCPU(CPU cpu) {
+        this.cpu = cpu;
+        this.simulationTimer = new SimulationTimer();
+    }
 
-    // 1. Sincroniza os campos e o checkbox
-    stepModeCheckBox.selectedProperty().bindBidirectional(controlsModel.isStepModeProperty());
-    subcycleSpeedField.textProperty().bindBidirectional(controlsModel.subcycleSpeedProperty());
-    pcPauseField.textProperty().bindBidirectional(controlsModel.pcPauseValueProperty());
+    public void setMemory(MainMemory memory) {
+        this.memory = memory;
+    }
 
-    // 2. Lógica de UI: Desabilita/Habilita botões baseado no estado 'isRunning'
-    
-    // O botão PLAY é desabilitado QUANDO a simulação ESTÁ rodando
-    playButton.disableProperty().bind(controlsModel.isRunningProperty());
-    
-    // Os botões PAUSE e STOP são desabilitados QUANDO a simulação NÃO ESTÁ rodando
-    pauseButton.disableProperty().bind(controlsModel.isRunningProperty().not());
-    stopButton.disableProperty().bind(controlsModel.isRunningProperty().not());
-    
-    // O botão de "Step" (Go through a cycle) só é habilitado quando a simulação está PAUSADA
-    stepCycleButton.disableProperty().bind(controlsModel.isRunningProperty());
-}
-
-    // --- Métodos de Evento (Chamados pelo FXML) ---
-    
-    // TODO: Adicione os métodos 'handle' para os seus botões.
-    // O onAction="#handlePlayButton" no FXML chamará este método:
-    //
     @FXML
-    private void handlePlayButton() {
-        if (controlsModel != null) {
-            controlsModel.play(); // Delega a ação para o modelo
+    private void handlePlay() {
+        if (cpu == null) return;
+
+        cpu.start();
+        controlsModel.setRunning(true);
+
+        if (!controlsModel.isStepByStepMode()) {
+            simulationTimer.start();
         }
     }
 
     @FXML
-    private void handlePauseButton() {
-        if (controlsModel != null) {
-            controlsModel.pause();
-        }
+    private void handlePause() {
+        if (cpu == null) return;
+
+        cpu.pause();
+        controlsModel.setPaused(true);
+        simulationTimer.stop();
     }
-    
+
     @FXML
-    private void handleStopButton() {
-        if (controlsModel != null) {
-            controlsModel.pause(); 
+    private void handleStop() {
+        if (cpu == null) return;
+
+        cpu.stop();
+        controlsModel.setRunning(false);
+        simulationTimer.stop();
+    }
+
+    @FXML
+    private void handleReset() {
+        if (cpu == null) return;
+
+        cpu.reset();
+        if (memory != null) {
+            memory.reset();
+        }
+        controlsModel.reset();
+        simulationTimer.stop();
+    }
+
+    @FXML
+    private void handleApplyPause() {
+        try {
+            int value = Integer.parseInt(pauseField.getText());
+            controlsModel.setPauseBetweenSubcycles(value);
+        } catch (NumberFormatException e) {
+            pauseField.setText(String.valueOf(controlsModel.getPauseBetweenSubcycles()));
         }
     }
 
     @FXML
-    private void handleResetButton() {
-        if (controlsModel != null) {
-            controlsModel.reset();
+    private void handleApplyPausePC() {
+        try {
+            int value = Integer.parseInt(pauseOnPCField.getText());
+            controlsModel.setPauseOnPC(value);
+        } catch (NumberFormatException e) {
+            pauseOnPCField.setText(String.valueOf(controlsModel.getPauseOnPC()));
         }
     }
 
     @FXML
-    private void handleStepCycle() {
-        if (controlsModel != null) {
-            controlsModel.stepCycle();
+    private void handleStep() {
+        if (cpu == null) return;
+
+        cpu.executeCycle();
+
+        int pausePC = controlsModel.getPauseOnPC();
+        if (pausePC >= 0 && cpu.getRegister("PC") != null) {
+            int currentPC = cpu.getRegister("PC").getValue();
+            if (currentPC == pausePC) {
+                cpu.pause();
+                controlsModel.setPaused(true);
+            }
         }
     }
 
-    @FXML
-    private void handleSubcycleApply() {
-        System.out.println("Subcycle speed aplicado (automaticamente via binding).");
-    }
+    private class SimulationTimer extends AnimationTimer {
+        private long lastUpdate = 0;
 
-    @FXML
-    private void handlePcPauseApply() {
-        System.out.println("PC Pause aplicado (automaticamente via binding).");
- 
+        @Override
+        public void handle(long now) {
+            if (!cpu.isRunning()) {
+                stop();
+                return;
+            }
+
+            long pauseNanos = controlsModel.getPauseBetweenSubcycles() * 1_000_000L;
+
+            if (now - lastUpdate >= pauseNanos) {
+                cpu.executeCycle();
+                lastUpdate = now;
+
+                int pausePC = controlsModel.getPauseOnPC();
+                if (pausePC >= 0 && cpu.getRegister("PC") != null) {
+                    int currentPC = cpu.getRegister("PC").getValue();
+                    if (currentPC == pausePC) {
+                        cpu.pause();
+                        controlsModel.setPaused(true);
+                        stop();
+                    }
+                }
+            }
+        }
     }
 }

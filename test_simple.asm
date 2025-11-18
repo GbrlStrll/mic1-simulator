@@ -1,0 +1,4 @@
+START:
+    B=0, C=AC, PASSA, ENC
+    B=AC, A=+1, C=AC, ADD, ENC
+    GOTO START

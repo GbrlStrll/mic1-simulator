@@ -1,76 +1,53 @@
 package mic1.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import mic1.core.MemoryWord;
 import mic1.model.MainMemory;
-import mic1.model.MainMemory.MemoryEntry;
 
-/**
- * Controlador (Controller) para a janela da Memória Principal (MainMemory.fxml).
- *
- * Esta classe atua como a ponte entre a View (FXML) e o Model (MainMemory).
- * Sua principal responsabilidade é injetar os componentes da UI e
- * configurar o data binding (ligação de dados) entre a TableView
- * e a lista observável do modelo.
- *
- * Este controlador segue um padrão de Injeção de Dependência,
- * onde o modelo (MainMemory) é injetado pela classe View (MainMemoryView).
- */
-public class MainMemoryController {
+import java.net.URL;
+import java.util.ResourceBundle;
 
-    /** A TableView principal injetada do FXML (fx:id="memoryTable"). */
-    @FXML
-    private TableView<MemoryEntry> memoryTable;
+public class MainMemoryController implements Initializable {
+    @FXML private TableView<MemoryWord> memoryTable;
+    @FXML private TableColumn<MemoryWord, Integer> addressColumn;
+    @FXML private TableColumn<MemoryWord, String> binaryColumn;
+    @FXML private TableColumn<MemoryWord, String> decimalColumn;
+    @FXML private TableColumn<MemoryWord, String> hexColumn;
 
-    /** A coluna "Address" injetada do FXML (fx:id="addressColumn"). */
-    @FXML
-    private TableColumn<MemoryEntry, String> addressColumn;
-
-    /** A coluna "Binary Value" injetada do FXML (fx:id="binaryColumn"). */
-    @FXML
-    private TableColumn<MemoryEntry, String> binaryColumn;
-
-    /** A coluna "Decimal Value" injetada do FXML (fx:id="decimalColumn"). */
-    @FXML
-    private TableColumn<MemoryEntry, String> decimalColumn;
-
-    /** A coluna "Hexadecimal Value" injetada do FXML (fx:id="hexColumn"). */
-    @FXML
-    private TableColumn<MemoryEntry, String> hexColumn;
-
-    /** Referência ao modelo de dados (o "cérebro") da Memória Principal. */
     private MainMemory memoryModel;
 
-    /**
-     * Injeta o modelo (MainMemory) neste controlador e inicializa o data binding.
-     *
-     * Este método é chamado pela MainMemoryView após o FXML ser carregado,
-     * completando o ciclo MVC por meio da Injeção de Dependência.
-     *
-     * @param model A instância do MainMemory criada na classe Main.
-     */
-    public void setModel(MainMemory model) {
-        this.memoryModel = model;
-
-        // --- Configuração do Data Binding da Tabela ---
-
-        // 1. Configura as CellValueFactories:
-        // Diz a cada coluna qual propriedade (getter) da classe MemoryEntry
-        // ela deve observar para obter seu valor.
-        // Os nomes ("address", "binaryValue", etc.) devem corresponder
-        // exatamente aos métodos (ex: getAddress(), getBinaryValue())
-        // na classe MainMemory.MemoryEntry.
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Define como obter os dados para cada coluna
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         binaryColumn.setCellValueFactory(new PropertyValueFactory<>("binaryValue"));
         decimalColumn.setCellValueFactory(new PropertyValueFactory<>("decimalValue"));
         hexColumn.setCellValueFactory(new PropertyValueFactory<>("hexValue"));
+    }
 
-        // 2. Vincula (bind) a Tabela à Lista Observável:
-        // Conecta a TableView diretamente à ObservableList do modelo.
-        // Qualquer alteração na lista (feita pelo modelo) será
-        // refletida automaticamente na TableView.
-        memoryTable.setItems(memoryModel.getMemoryData());
+    /**
+     * Injeta o modelo (MainMemory) neste controlador.
+     * Este método é chamado pela classe Main para conectar a lógica (model)
+     * com a interface (controller).
+     */
+    public void setModel(MainMemory model) {
+        this.memoryModel = model;
+
+        // 1. Liga a tabela para observar a lista de palavras de memória.
+        memoryTable.setItems(this.memoryModel.getMemoryList());
+
+        // 2. Adiciona um "ouvinte" para atualizações.
+        //    Quando o modelo notificar que a memória mudou (em outra thread),
+        //    a tabela será atualizada na thread principal do JavaFX.
+        this.memoryModel.memoryChangedProperty().addListener((obs, oldVal, newVal) -> {
+            Platform.runLater(() -> {
+                memoryTable.refresh();
+            });
+        });
     }
 }

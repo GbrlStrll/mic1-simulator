@@ -9,68 +9,66 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:controller="mic1.controller.SimulationControlsController" prefHeight="450.0" prefWidth="720.0" styleClass="root-pane" stylesheets="@SimulationControls.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      
-      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
+<AnchorPane fx:controller="mic1.controller.SimulationControlsController" prefHeight="450.0" prefWidth="600.0" styleClass="root-pane" stylesheets="@SimulationControls.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+
+    <children>
+        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
             
-            <Label maxWidth="Infinity" styleClass="title-label" text="Simulation Controls">
-               <VBox.margin>
-                  <Insets left="15.0" right="15.0" />
-               </VBox.margin>
-            </Label>
-            
-            <VBox styleClass="content-pane" VBox.vgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets bottom="15.0" left="15.0" right="15.0" />
-               </VBox.margin>
-               <children>
-                  
-                  <HBox styleClass="button-bar">
-                     <children>
-                        <Button text="PLAY" fx:id="playButton" onAction="#handlePlayButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
-                        <Button text="PAUSE" fx:id="pauseButton" onAction="#handlePauseButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
-                        <Button text="STOP" fx:id="stopButton" onAction="#handleStopButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
-                        <Button text="RESET" fx:id="resetButton" onAction="#handleResetButton" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" HBox.hgrow="ALWAYS" />
-                     </children>
-                     <VBox.margin>
-                        <Insets bottom="25.0" />
-                     </VBox.margin>
-                  </HBox>
-                  
-                  <HBox alignment="CENTER_LEFT" styleClass="setting-row">
-                     <children>
-                        <Label styleClass="setting-label" text="Pause between subcycles (milliseconds):" />
-                        <TextField fx:id="subcycleSpeedField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
-                        <Button text="Apply" fx:id="subcycleApplyButton" onAction="#handleSubcycleApply" prefWidth="75.0" styleClass="apply-button" />
-                     </children>
-                  </HBox>
-                  
-                  <HBox alignment="CENTER_LEFT" styleClass="setting-row">
-                     <children>
-                        <Label styleClass="setting-label" text="Pause when on PC:" />
-                        <TextField fx:id="pcPauseField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
-                        <Button text="Apply" fx:id="pcPauseApplyButton" onAction="#handlePcPauseApply" prefWidth="75.0" styleClass="apply-button" />
-                     </children>
-                  </HBox>
-                  
-                  <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                     <children>
-                     
-                        <VBox alignment="CENTER_LEFT" styleClass="step-pane">
-                           <children>
-                              <CheckBox fx:id="stepModeCheckBox" styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
-                              <Button text="Go through a cycle" fx:id="stepCycleButton" onAction="#handleStepCycle" maxWidth="Infinity" styleClass="step-button" />
-                           </children>
+                <Label maxWidth="Infinity" styleClass="title-label" text="Simulation Controls">
+                    <VBox.margin>
+                        <Insets left="15.0" right="15.0" />
+                    </VBox.margin>
+                </Label>
+                
+                <VBox styleClass="content-pane" VBox.vgrow="ALWAYS">
+                    <VBox.margin>
+                        <Insets bottom="15.0" left="15.0" right="15.0" />
+                    </VBox.margin>
+                    <children>
+                    
+                        <HBox styleClass="button-bar">
+                            <children>
+                                <Button fx:id="playButton" onAction="#handlePlay" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PLAY" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="pauseButton" onAction="#handlePause" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="PAUSE" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="stopButton" onAction="#handleStop" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="STOP" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="resetButton" onAction="#handleReset" maxWidth="Infinity" prefHeight="100.0" styleClass="action-button" text="RESET" HBox.hgrow="ALWAYS" />
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="25.0" />
+                            </VBox.margin>
+                        </HBox>
+                        
+                        <HBox alignment="CENTER_LEFT" styleClass="setting-row">
+                            <children>
+                                <Label styleClass="setting-label" text="Pause between subcycles (milliseconds):" />
+                                <TextField fx:id="pauseField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                                <Button onAction="#handleApplyPause" prefWidth="75.0" styleClass="apply-button" text="Apply" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" styleClass="setting-row">
+                            <children>
+                                <Label styleClass="setting-label" text="Pause when on PC:" />
+                                <TextField fx:id="pauseOnPCField" alignment="CENTER" styleClass="setting-field" HBox.hgrow="ALWAYS" />
+                                <Button onAction="#handleApplyPausePC" prefWidth="75.0" styleClass="apply-button" text="Apply" />
+                            </children>
+                        </HBox>
+                        
+                        <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox alignment="CENTER_LEFT" styleClass="step-pane">
+                                    <children>
+                                        <CheckBox fx:id="stepModeCheckbox" styleClass="step-checkbox" text="Execute in Step-by-Step Mode" />
+                                        <Button fx:id="stepButton" onAction="#handleStep" maxWidth="Infinity" styleClass="step-button" text="Go through a cycle" />
+                                    </children>
+                                </VBox>
+                            </children>
                         </VBox>
                         
-                     </children>
-                  </VBox>
-                  
-               </children>
-            </VBox>
-         </children>
-      </VBox>
-   </children>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>

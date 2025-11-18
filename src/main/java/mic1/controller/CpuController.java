@@ -1,53 +1,85 @@
 package mic1.controller;
 
 import javafx.fxml.FXML;
-// Importe aqui os componentes do JavaFX que você usará (ex: Label, TextField)
-// Ex: import javafx.scene.control.Label;
-import mic1.model.CPU; // Importa o Modelo
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.shape.Circle;
+import mic1.core.Register;
+import mic1.model.CPU;
 
-/**
- * O "Ponte" (Controlador) para a janela da CPU.
- *
- * Responsabilidades:
- * 1. Conectar os componentes @FXML (definidos no CPU.fxml) com o Modelo.
- * 2. Ligar (bind) as propriedades do Modelo (ex: pc, ac) aos componentes da View.
- * 3. (Este controlador geralmente não lida com cliques de botão,
- * pois a CPU é controlada pelo SimulationControls).
- */
-public class CpuController {
+import java.net.URL;
+import java.util.ResourceBundle;
 
-    // --- Componentes da View (Injetados pelo FXML) ---
-    // TODO: Adicione os @FXML para os Labels/TextFields da sua CPU.fxml
-    // Exemplo:
-    // @FXML
-    // private Label pcValueLabel;
-    //
-    // @FXML
-    // private Label acValueLabel;
-    //
-    // @FXML
-    // private Label spValueLabel;
+public class CpuController implements Initializable {
+    @FXML private TableView<Register> registerTable;
+    @FXML private TableColumn<Register, String> registerNameColumn;
+    @FXML private TableColumn<Register, Integer> registerValueColumn;
+    @FXML private TextArea microcodeLogArea;
+    @FXML private Label cyclesLabel;
+    @FXML private Label statusLabel;
+    @FXML private Circle statusIndicator;
 
-
-    // --- Referência ao Modelo ---
     private CPU cpuModel;
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Define como obter os dados para cada coluna
+        registerNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        registerValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
+
+        // Formata a coluna de valor para exibir em Hex e Decimal
+        registerValueColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
+            @Override
+            protected void updateItem(Integer item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    // Formata como "0x0000FFFF (65535)"
+                    setText(String.format("0x%08X (%d)", item, item));
+                }
+            }
+        });
+    }
+
     /**
-     * Este método é o "ponto de entrada" principal.
-     * Ele é chamado pela classe CpuView para injetar o "cérebro" (o Modelo).
-     *
-     * ISSO CORRIGE O ERRO "setModel is undefined".
+     * Injeta o modelo (CPU) neste controlador.
+     * Este método é chamado pela classe Main para conectar a lógica (model)
+     * com a interface (controller).
      */
     public void setModel(CPU model) {
         this.cpuModel = model;
 
-        // --- A MÁGICA (Data Binding) ---
-        // TODO: Ligue as propriedades do seu modelo de CPU aos seus @FXML Labels
-        //
-        // Exemplo (se você tiver um 'pcProperty()' no seu modelo CPU.java):
-        // pcValueLabel.textProperty().bind(cpuModel.pcProperty().asString());
-        // acValueLabel.textProperty().bind(cpuModel.acProperty().asString());
-        // spValueLabel.textProperty().bind(cpuModel.spProperty().asString());
-    }
+        registerTable.setItems(this.cpuModel.getRegisterList());
 
+        cyclesLabel.textProperty().bind(
+            this.cpuModel.cycleCountProperty().asString("Cycles: %d")
+        );
+
+        statusLabel.textProperty().bind(this.cpuModel.statusProperty());
+
+        model.runningProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                statusIndicator.getStyleClass().remove("status-indicator-off");
+                statusIndicator.getStyleClass().add("status-indicator-on");
+            } else {
+                statusIndicator.getStyleClass().remove("status-indicator-on");
+                statusIndicator.getStyleClass().add("status-indicator-off");
+            }
+        });
+
+        this.cpuModel.getMicrocodeLog().addListener((javafx.collections.ListChangeListener<String>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (String log : change.getAddedSubList()) {
+                        microcodeLogArea.appendText(log + "\n");
+                    }
+                }
+            }
+        });
+    }
 }

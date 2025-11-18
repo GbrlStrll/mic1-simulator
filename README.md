@@ -2,6 +2,59 @@
 
 Este é um simulador do processador MIC-1 desenvolvido em Java usando JavaFX. O simulador fornece uma interface gráfica interativa para visualizar e controlar a execução do processador MIC-1.
 
+**Integrantes do grupo**: *Beatriz Barboza*, *Felipe Belletti*, *Gabriel Estrella*, *Isis Meira*, *Julia Yuki*, *Kauã Geddes*
+
+## Estrutura do Projeto
+
+```
+mic1-simulator/
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── mic1/
+│       │       ├── assembler/           # Montador de microinstruções
+│       │       │   └── Assembler.java  # Converte código assembly em microinstruções
+│       │       ├── controller/          # Controladores MVC
+│       │       │   ├── CpuController.java              # Gerencia interface da CPU
+│       │       │   ├── MainMemoryController.java       # Gerencia interface da memória
+│       │       │   ├── SimulationControlsController.java  # Gerencia controles (play/pause/step)
+│       │       │   └── SourceCodeController.java       # Gerencia editor de código
+│       │       ├── core/               # Componentes centrais
+│       │       │   ├── ALU.java                # Unidade Lógica Aritmética
+│       │       │   ├── MemoryWord.java         # Representa uma palavra de memória
+│       │       │   ├── MicroInstruction.java   # Representa uma microinstrução
+│       │       │   ├── Register.java           # Representa um registrador
+│       │       │   └── Shifter.java            # Deslocador de bits
+│       │       ├── model/              # Modelos de dados
+│       │       │   ├── CPU.java                # Modelo da CPU (registradores, ALU, etc.)
+│       │       │   ├── MainMemory.java         # Modelo da memória principal
+│       │       │   ├── SimulationControls.java # Modelo dos controles de simulação
+│       │       │   └── SourceCode.java         # Modelo do código fonte
+│       │       ├── view/               # Views
+│       │       │   ├── CpuView.java                   # Carrega e exibe janela da CPU
+│       │       │   ├── MainMemoryView.java            # Carrega e exibe janela da memória
+│       │       │   ├── SimulationControlsView.java    # Carrega e exibe janela de controles
+│       │       │   └── SourceCodeView.java            # Carrega e exibe janela de código
+│       │       ├── util/               # Utilitários
+│       │       │   └── FileUtils.java          # Funções para leitura/escrita de arquivos
+│       │       ├── DebugAssembler.java # Programa de teste para o montador
+│       │       ├── Main.java           # Classe principal - inicializa aplicação
+│       │       └── module-info.java    # Configuração do módulo Java
+│       └── resources/
+│           └── mic1/
+│               ├── icons/              # Ícones da aplicação
+│               │   └── AppIcon.png
+│               ├── CPU.fxml           # Interface da CPU
+│               ├── CPU.css            # Estilos da CPU
+│               ├── MainMemory.fxml    # Interface da memória
+│               ├── MainMemory.css     # Estilos da memória
+│               ├── SimulationControls.fxml  # Interface dos controles
+│               ├── SimulationControls.css   # Estilos dos controles
+│               ├── SourceCode.fxml    # Interface do código fonte
+│               └── SourceCode.css     # Estilos do código fonte
+├── pom.xml                            # Configuração Maven
+```
+
 ## Requisitos
 
 Para executar este projeto, você precisa ter instalado em seu computador:

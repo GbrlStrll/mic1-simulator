@@ -94,6 +94,7 @@ public class MicroInstruction {
         public Builder shiftOp(Shifter.ShiftOperation shiftOp) { this.shiftOp = shiftOp; return this; }
         public Builder amux(boolean amux) { this.amux = amux; return this; }
         public Builder cond(Condition cond) { this.cond = cond; return this; }
+        public Condition getCond() { return this.cond; }
         public Builder mbr(boolean mbr) { this.mbr = mbr; return this; }
         public Builder mar(boolean mar) { this.mar = mar; return this; }
         public Builder rd(boolean rd) { this.rd = rd; return this; }

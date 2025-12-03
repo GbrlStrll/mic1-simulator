@@ -122,7 +122,9 @@ public class Assembler {
             if (addr != null) {
                 builder.addr(addr);
             }
-            builder.cond(MicroInstruction.Condition.ALWAYS);
+            if (builder.getCond() == MicroInstruction.Condition.NONE) {
+                builder.cond(MicroInstruction.Condition.ALWAYS);
+            }
         }
     }
 

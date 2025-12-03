@@ -229,7 +229,11 @@ DONE:
 ```asm
 START:
     A=0, C=B, PASSA, ENC
-    A=+1, B=+1, B=+1, B=+1, B=+1, ADD, C=A, ENC
+    A=+1, C=A, PASSA, ENC
+    A=A, B=+1, C=A, ADD, ENC
+    A=A, B=+1, C=A, ADD, ENC
+    A=A, B=+1, C=A, ADD, ENC
+    A=A, B=+1, C=A, ADD, ENC
 
 WRITE_LOOP:
     A=B, B=+1, C=B, ADD, ENC
@@ -238,7 +242,7 @@ WRITE_LOOP:
 
     A=A, B=-1, C=A, ADD, ENC
 
-    B=A, IFZ, GOTO DONE
+    A=A, PASSA, IFZ, GOTO DONE
     GOTO WRITE_LOOP
 
 DONE:

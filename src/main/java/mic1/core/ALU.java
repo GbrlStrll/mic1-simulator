@@ -36,6 +36,8 @@ public class ALU {
     }
 
     public int execute(int a, int b, Operation operation) {
+        // executa operacao alu e atualiza flags de condicao
+        // flags sao usados para jumps condicionais na microinstrucao
         int result = switch (operation) {
             case ADD -> a + b;
             case AND -> a & b;
@@ -48,6 +50,8 @@ public class ALU {
     }
 
     private void updateFlags(int result) {
+        // atualiza flags zero e negativo baseado no resultado da operacao
+        // esses flags determinam se jumps condicionais devem ser tomados
         zeroFlag = (result == 0);
         negativeFlag = (result < 0);
     }

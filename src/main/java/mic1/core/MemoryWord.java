@@ -67,8 +67,11 @@ public class MemoryWord {
     }
 
     private void updateRepresentations() {
+        // quando valor muda, atualiza todas as representacoes automaticamente
+        // mantem binario, decimal e hex sincronizados para exibicao na tabela
         int val = value.get();
 
+        // formata binario com 32 bits, tratando numeros negativos corretamente
         String binary = String.format("%32s", Integer.toBinaryString(val)).replace(' ', '0');
         if (val < 0) {
             binary = binary.substring(binary.length() - 32);

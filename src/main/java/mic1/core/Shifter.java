@@ -27,6 +27,8 @@ public class Shifter {
     }
 
     public int shift(int value, ShiftOperation operation) {
+        // aplica operacao de shift no resultado da alu
+        // usado para multiplicacao/divisao por 2 ou ajuste de bits
         return switch (operation) {
             case RIGHT -> value >> 1;
             case LEFT -> value << 1;

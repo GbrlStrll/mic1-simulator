@@ -21,28 +21,34 @@ public class Main extends Application {
 
     @Override
     public void init() {
+        // carrega icone do aplicativo para todas as janelas
         try {
             String caminhoIcone = "/mic1/icons/AppIcon.png";
             iconeAplicativo = new Image(getClass().getResourceAsStream(caminhoIcone));
         } catch (Exception e) {
             System.err.println("Erro ao carregar o ícone: " + e.getMessage());
-            // Aplicativo continuará sem ícone em caso de falha
         }
 
+        // inicializa modelos antes de criar qualquer interface
+        // esses objetos sao compartilhados entre todas as janelas via injecao de dependencia
         cpu = new CPU();
         memory = new MainMemory();
         sourceCode = new SourceCode();
         controls = new SimulationControls();
 
+        // conecta cpu com memoria para permitir operacoes de leitura e escrita
         cpu.setMemory(memory);
     }
 
     @Override
     public void start(Stage stage) {
+        // aplica icone na janela principal
         if (iconeAplicativo != null) {
             stage.getIcons().add(iconeAplicativo);
         }
 
+        // janela principal: editor de codigo fonte e area de compilacao
+        // aqui o usuario escreve microcodigo e ve o resultado da montagem
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/mic1/SourceCode.fxml"));
             Parent root = loader.load();
@@ -51,7 +57,7 @@ public class Main extends Application {
             controller.setCPU(cpu);
 
             Scene scene = new Scene(root);
-            stage.setTitle("Source Code - MIC-1 Simulator");
+            stage.setTitle("Codigo Fonte - Simulador MIC-1");
             stage.setScene(scene);
             stage.setResizable(true);
             stage.setX(1060);
@@ -62,22 +68,24 @@ public class Main extends Application {
             e.printStackTrace();
         }
 
+        // abre janelas auxiliares posicionadas estrategicamente na tela
+        // cada uma mostra uma parte diferente do estado da simulacao
         try {
-            abrirJanelaCPU("/mic1/CPU.fxml", "CPU - MIC-1 Simulator", 250, 490);
+            abrirJanelaCPU("/mic1/CPU.fxml", "CPU - Simulador MIC-1", 250, 490);
         } catch (IOException e) {
             System.err.println("Erro ao carregar CPU.fxml:");
             e.printStackTrace();
         }
 
         try {
-            abrirJanelaMemoria("/mic1/MainMemory.fxml", "Main Memory - MIC-1 Simulator", 250, 0);
+            abrirJanelaMemoria("/mic1/MainMemory.fxml", "Memoria Principal - Simulador MIC-1", 250, 0);
         } catch (IOException e) {
             System.err.println("Erro ao carregar MainMemory.fxml:");
             e.printStackTrace();
         }
 
         try {
-            abrirJanelaControles("/mic1/SimulationControls.fxml", "Controls - MIC-1 Simulator", 1060, 540);
+            abrirJanelaControles("/mic1/SimulationControls.fxml", "Controles - Simulador MIC-1", 1060, 540);
         } catch (IOException e) {
             System.err.println("Erro ao carregar SimulationControls.fxml:");
             e.printStackTrace();
@@ -85,6 +93,8 @@ public class Main extends Application {
     }
 
     private void abrirJanelaCPU(String fxmlFile, String title, double x, double y) throws IOException {
+        // padrao mvc: carrega fxml, obtem controller criado automaticamente e injeta modelo
+        // todas as janelas compartilham a mesma instancia de cpu para sincronizacao automatica
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
         CpuController controller = loader.getController();
@@ -104,6 +114,8 @@ public class Main extends Application {
     }
 
     private void abrirJanelaMemoria(String fxmlFile, String title, double x, double y) throws IOException {
+        // mesma instancia de memoria e compartilhada entre cpu e esta janela
+        // quando cpu escreve na memoria, a tabela atualiza automaticamente via observable
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
         MainMemoryController controller = loader.getController();
@@ -123,6 +135,8 @@ public class Main extends Application {
     }
 
     private void abrirJanelaControles(String fxmlFile, String title, double x, double y) throws IOException {
+        // controller de controles precisa de acesso direto a cpu e memoria
+        // para poder iniciar, pausar e resetar a simulacao
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
         SimulationControlsController controller = loader.getController();
@@ -143,10 +157,6 @@ public class Main extends Application {
         novoStage.show();
     }
 
-    /**
-     * Método principal que inicia o aplicativo.
-     * * @param args Argumentos da linha de comando (não utilizados)
-     */
     public static void main(String[] args) {
         launch(args);
     }

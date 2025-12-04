@@ -72,6 +72,8 @@ public class MicroInstruction {
     public boolean isEnc() { return enc; }
 
     public static class Builder {
+        // padrao builder para construir microinstrucoes de forma fluente
+        // permite montar instrucao passo a passo durante parsing do assembler
         private int addr = 0;
         private int regA = 0;
         private int regB = 0;

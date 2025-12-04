@@ -23,76 +23,66 @@ public class SourceCodeController {
         this.assembler = new Assembler();
     }
 
-    /**
-     * Injeta o modelo SourceCode.
-     * Faz o data binding bidirecional com a área de texto do assembly
-     * e unidirecional com a área de texto compilada.
-     */
     public void setModel(SourceCode model) {
         this.sourceCodeModel = model;
+        // texto digitado reflete direto no modelo
         assemblyArea.textProperty().bindBidirectional(model.assemblyCodeProperty());
         compiledArea.textProperty().bind(model.compiledCodeProperty());
     }
 
-    /**
-     * Injeta a instância da CPU.
-     */
     public void setCPU(CPU cpu) {
         this.cpu = cpu;
     }
 
-    /**
-     * Chamado quando o botão "Assemble" é clicado.
-     * Pega o texto da 'assemblyArea', chama o montador e exibe
-     * o resultado ou os erros na 'compiledArea'.
-     */
     @FXML
     private void handleAssemble() {
+        // processo de montagem: converte texto assembly em microinstrucoes binarias
+        // primeiro passa: identifica labels e monta instrucoes
+        // segunda passa: resolve enderecos de labels em instrucoes goto
         String code = assemblyArea.getText();
         lastResult = assembler.assemble(code);
 
         if (lastResult.isSuccess()) {
+            // montagem bem sucedida: mostra codigo compilado e informacoes de debug
             StringBuilder output = new StringBuilder();
             output.append(lastResult.getCompiledOutput());
             
-            // Opcional: Adiciona informações de debug
+            // adiciona detalhes de cada microinstrucao para facilitar debug
             output.append("\n=== DEBUG INFO ===\n");
             MicroInstruction[] instructions = lastResult.getInstructions();
             for (int i = 0; i < instructions.length; i++) {
                 MicroInstruction mi = instructions[i];
-                if (mi == null) continue; // Pula endereços não utilizados
+                if (mi == null) continue;
                 output.append(String.format("%d: A=%d B=%d C=%d ALU=%s COND=%s ADDR=%d ENC=%s\n",
                         i, mi.getRegA(), mi.getRegB(), mi.getRegC(),
                         mi.getAluOp(), mi.getCond(), mi.getAddr(), mi.isEnc()));
             }
 
             sourceCodeModel.setCompiledCode(output.toString());
-            sourceCodeModel.setAssemblyStatus("Assembly successful!");
+            sourceCodeModel.setAssemblyStatus("Montagem concluida com sucesso!");
         } else {
-            // Se falhou, exibe os erros
+            // montagem falhou: mostra lista de erros encontrados
             sourceCodeModel.setCompiledCode(lastResult.getErrorOutput());
-            sourceCodeModel.setAssemblyStatus("Assembly failed with errors");
+            sourceCodeModel.setAssemblyStatus("Montagem falhou com erros");
         }
     }
 
-    /**
-     * Chamado quando o botão "Write to Control Store" é clicado.
-     * Pega as microinstruções do último 'assemble' bem-sucedido
-     * e as escreve na memória de controle da CPU.
-     */
     @FXML
     private void handleWriteMemory() {
+        // carrega microinstrucoes compiladas na control store da cpu
+        // cada instrucao vai para o endereco correspondente na store
         if (lastResult == null || !lastResult.isSuccess()) {
-            sourceCodeModel.setCompiledCode("Please assemble code successfully first!");
+            sourceCodeModel.setCompiledCode("Por favor monte o codigo com sucesso primeiro!");
             return;
         }
 
         if (cpu == null) {
-            sourceCodeModel.setCompiledCode("CPU not initialized!");
+            sourceCodeModel.setCompiledCode("CPU nao inicializada!");
             return;
         }
 
-        // Escreve as microinstruções na CPU
+        // escreve cada microinstrucao no endereco correspondente
+        // enderecos vazios (null) sao ignorados para manter instrucoes anteriores
         MicroInstruction[] instructions = lastResult.getInstructions();
         for (int i = 0; i < instructions.length; i++) {
             if (instructions[i] != null) {
@@ -100,7 +90,7 @@ public class SourceCodeController {
             }
         }
 
-        sourceCodeModel.setAssemblyStatus("Microcode loaded into CPU control store!");
-        sourceCodeModel.setCompiledCode(sourceCodeModel.getCompiledCode() + "\n\nMicrocode successfully loaded into CPU!");
+        sourceCodeModel.setAssemblyStatus("Microcodigo carregado na control store da CPU!");
+        sourceCodeModel.setCompiledCode(sourceCodeModel.getCompiledCode() + "\n\nMicrocodigo carregado com sucesso na CPU!");
     }
 }

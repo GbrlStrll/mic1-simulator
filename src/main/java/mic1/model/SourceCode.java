@@ -9,9 +9,11 @@ public class SourceCode {
     private final StringProperty assemblyStatus;
 
     public SourceCode() {
+        // modelo gerencia codigo fonte e resultado da compilacao
+        // propriedades observaveis mantem ui sincronizada com estado do modelo
         this.assemblyCode = new SimpleStringProperty("");
         this.compiledCode = new SimpleStringProperty("");
-        this.assemblyStatus = new SimpleStringProperty("Ready");
+        this.assemblyStatus = new SimpleStringProperty("Pronto");
     }
 
     public String getAssemblyCode() {
@@ -53,6 +55,6 @@ public class SourceCode {
     public void clear() {
         assemblyCode.set("");
         compiledCode.set("");
-        assemblyStatus.set("Ready");
+        assemblyStatus.set("Pronto");
     }
 }

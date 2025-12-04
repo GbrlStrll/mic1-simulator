@@ -8,15 +8,6 @@ import mic1.core.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * O "Cérebro" (Backend) da CPU. (MODELO)
- *
- * Responsabilidades:
- * 1. Manter o estado dos registradores (PC, AC, SP, IR, etc.).
- * 2. Conter a lógica para executar o ciclo de busca/decodificação/execução.
- * 3. Expor propriedades (Properties) dos registradores para a View (CpuView).
- */
-
 public class CPU {
     private static final int CONTROL_STORE_SIZE = 512;
 
@@ -36,6 +27,8 @@ public class CPU {
     private MainMemory memory;
 
     public CPU() {
+        // registradores sao armazenados em hashmap para acesso por nome e lista observavel para ui
+        // a lista observavel detecta mudancas em qualquer propriedade dos registradores
         this.registers = new HashMap<>();
         this.registerList = FXCollections.observableArrayList(reg ->
             reg != null ? new javafx.beans.Observable[] { reg.valueProperty() } : new javafx.beans.Observable[0]
@@ -44,28 +37,36 @@ public class CPU {
         this.shifter = new Shifter();
         this.controlStore = new MicroInstruction[CONTROL_STORE_SIZE];
 
+        // propriedades observaveis permitem que a ui se atualize automaticamente
         this.mpc = new SimpleIntegerProperty(0);
         this.mir = new SimpleIntegerProperty(0);
         this.cycleCount = new SimpleIntegerProperty(0);
         this.running = new SimpleBooleanProperty(false);
-        this.status = new SimpleStringProperty("STOPPED");
+        this.status = new SimpleStringProperty("PARADA");
         this.microcodeLog = FXCollections.observableArrayList();
 
+        // inicializa bancada de registradores e preenche control store com valores padrao
         initializeRegisters();
         loadDefaultMicrocode();
     }
 
     private void initializeRegisters() {
+        // registradores principais da arquitetura mic-1
         addRegister("PC", 0);
         addRegister("AC", 1);
         addRegister("SP", 2);
         addRegister("IR", 3);
         addRegister("TIR", 4);
+        
+        // registradores constantes de leitura apenas (read-only)
+        // usados como operandos imediatos nas operacoes da alu
         addRegister("0", 5, 0, true);
         addRegister("+1", 6, 1, true);
         addRegister("-1", 7, -1, true);
         addRegister("AMASK", 8, 0x0FFF, true);
         addRegister("SMASK", 9, 0x00FF, true);
+        
+        // registradores temporarios para uso geral
         addRegister("A", 10);
         addRegister("B", 11);
         addRegister("C", 12);
@@ -90,6 +91,8 @@ public class CPU {
     }
 
     private void loadDefaultMicrocode() {
+        // preenche toda a control store com instrucoes nulas para evitar comportamento indefinido
+        // se mpc apontar para endereco sem instrucao valida, a cpu para
         for (int i = 0; i < CONTROL_STORE_SIZE; i++) {
             controlStore[i] = new MicroInstruction.Builder()
                 .addr(0)
@@ -99,6 +102,8 @@ public class CPU {
                 .build();
         }
 
+        // microinstrucao inicial: le memoria no endereco apontado por pc
+        // esta e a primeira instrucao executada quando a cpu inicia
         controlStore[0] = new MicroInstruction.Builder()
             .regB(0)
             .regC(3)
@@ -114,8 +119,12 @@ public class CPU {
     }
 
     public void executeCycle() {
+        // ciclo completo de execucao de uma microinstrucao
+        // segue o padrao fetch-decode-execute da arquitetura mic-1
+        
+        // fase 1: validacao e busca
         if (mpc.get() >= CONTROL_STORE_SIZE || controlStore[mpc.get()] == null) {
-            logMicrocode("ERROR: Invalid MPC address: " + mpc.get());
+            logMicrocode("ERRO: Endereco MPC invalido: " + mpc.get());
             stop();
             return;
         }
@@ -123,15 +132,20 @@ public class CPU {
         MicroInstruction mi = controlStore[mpc.get()];
         mir.set(mpc.get());
 
+        // fase 2: preparacao dos operandos
+        // entrada A pode vir de registrador ou mbr dependendo do amux
         int aluInputA = getAluInputA(mi);
         int aluInputB = getRegisterValue(mi.getRegB());
 
         logMicrocode(String.format(">>> MPC=%d | A=R%d(0x%X) B=R%d(0x%X) ALU=%s",
             mpc.get(), mi.getRegA(), aluInputA, mi.getRegB(), aluInputB, mi.getAluOp()));
 
+        // fase 3: execucao alu e shift
         int aluResult = alu.execute(aluInputA, aluInputB, mi.getAluOp());
         int shiftedResult = shifter.shift(aluResult, mi.getShiftOp());
 
+        // fase 4: escrita de resultados
+        // resultado pode ir para registrador, mar ou mbr dependendo dos flags da instrucao
         if (mi.isEnc() && mi.getRegC() < registerList.size()) {
             Register targetReg = registerList.get(mi.getRegC());
             if (targetReg != null) {
@@ -151,6 +165,8 @@ public class CPU {
             logMicrocode(String.format("    MBR = 0x%X (%d)", shiftedResult, shiftedResult));
         }
 
+        // fase 5: operacoes de memoria
+        // leitura e escrita sao operacoes separadas que usam mar e mbr
         if (mi.isRd() && memory != null) {
             memory.read();
             logMicrocode(String.format("    RD: Memory[%d] -> MBR = 0x%X", memory.getMAR(), memory.getMBR()));
@@ -161,6 +177,8 @@ public class CPU {
             memory.write();
         }
 
+        // fase 6: calculo do proximo endereco
+        // pode ser sequencial ou condicional baseado em flags da alu
         int nextMpc = calculateNextMpc(mi);
         logMicrocode(String.format("    COND=%s -> Next MPC=%d", mi.getCond(), nextMpc));
         mpc.set(nextMpc);
@@ -183,6 +201,10 @@ public class CPU {
     }
 
     private int calculateNextMpc(MicroInstruction mi) {
+        // mpc (microprogram counter) aponta para proxima microinstrucao na control store
+        // shouldBranch indica se deve fazer jump condicional ou continuar sequencialmente
+        // se true: pula para endereco especificado em mi.getAddr()
+        // se false: avanca para proxima posicao (mpc + 1)
         boolean shouldBranch = switch (mi.getCond()) {
             case NEGATIVE -> alu.isNegative();
             case ZERO -> alu.isZero();
@@ -190,28 +212,31 @@ public class CPU {
             case NONE -> false;
         };
 
+        // retorna endereco de destino do jump ou proxima instrucao sequencial
         return shouldBranch ? mi.getAddr() : (mpc.get() + 1);
     }
 
     public void start() {
         running.set(true);
-        status.set("RUNNING");
-        logMicrocode("CPU started");
+        status.set("EXECUTANDO");
+        logMicrocode("CPU iniciada");
     }
 
     public void stop() {
         running.set(false);
-        status.set("STOPPED");
-        logMicrocode("CPU stopped");
+        status.set("PARADA");
+        logMicrocode("CPU parada");
     }
 
     public void pause() {
         running.set(false);
-        status.set("PAUSED");
-        logMicrocode("CPU paused");
+        status.set("PAUSADA");
+        logMicrocode("CPU pausada");
     }
 
     public void reset() {
+        // restaura todos os registradores para valores iniciais
+        // registradores read-only mantem seus valores constantes
         for (Register reg : registerList) {
             if (reg != null) {
                 reg.reset();
@@ -222,9 +247,9 @@ public class CPU {
         mir.set(0);
         cycleCount.set(0);
         running.set(false);
-        status.set("RESET");
+        status.set("RESETADO");
         microcodeLog.clear();
-        logMicrocode("CPU reset");
+        logMicrocode("CPU resetada");
     }
 
     private void logMicrocode(String message) {

@@ -23,27 +23,23 @@ public class MainMemoryController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Define como obter os dados para cada coluna
+        // colunas mostram cada representacao da palavra
         addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
         binaryColumn.setCellValueFactory(new PropertyValueFactory<>("binaryValue"));
         decimalColumn.setCellValueFactory(new PropertyValueFactory<>("decimalValue"));
         hexColumn.setCellValueFactory(new PropertyValueFactory<>("hexValue"));
     }
 
-    /**
-     * Injeta o modelo (MainMemory) neste controlador.
-     * Este método é chamado pela classe Main para conectar a lógica (model)
-     * com a interface (controller).
-     */
     public void setModel(MainMemory model) {
+        // conecta tabela com modelo de memoria
         this.memoryModel = model;
 
-        // 1. Liga a tabela para observar a lista de palavras de memória.
+        // tabela mostra lista observavel do modelo
+        // mudancas na memoria aparecem automaticamente na tabela
         memoryTable.setItems(this.memoryModel.getMemoryList());
 
-        // 2. Adiciona um "ouvinte" para atualizações.
-        //    Quando o modelo notificar que a memória mudou (em outra thread),
-        //    a tabela será atualizada na thread principal do JavaFX.
+        // refresh manual necessario porque mudancas podem vir de outras threads
+        // platform.runlater garante que atualizacao acontece na thread da ui
         this.memoryModel.memoryChangedProperty().addListener((obs, oldVal, newVal) -> {
             Platform.runLater(() -> {
                 memoryTable.refresh();

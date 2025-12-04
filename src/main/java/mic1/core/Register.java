@@ -12,6 +12,8 @@ public class Register {
     private final int defaultValue;
 
     public Register(String name, int defaultValue, boolean isReadOnly) {
+        // registrador com propriedades observaveis para atualizacao automatica da ui
+        // read-only impede escrita em registradores constantes como +1, -1, 0
         this.name = new SimpleStringProperty(name);
         this.value = new SimpleIntegerProperty(defaultValue);
         this.defaultValue = defaultValue;
@@ -31,6 +33,8 @@ public class Register {
     }
 
     public void setValue(int newValue) {
+        // protecao contra escrita em registradores read-only
+        // registradores constantes mantem valores fixos mesmo se tentarem escrever
         if (!isReadOnly) {
             value.set(newValue);
         }
@@ -49,6 +53,8 @@ public class Register {
     }
 
     public void reset() {
+        // restaura valor inicial do registrador
+        // usado quando cpu e resetada para voltar ao estado inicial
         if (!isReadOnly) {
             value.set(defaultValue);
         }

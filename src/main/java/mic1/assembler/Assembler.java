@@ -18,6 +18,7 @@ public class Assembler {
     }
 
     public AssemblyResult assemble(String sourceCode) {
+        // montador de duas passadas: primeira identifica labels, segunda resolve enderecos
         labels.clear();
         errors.clear();
         currentAddress = 0;
@@ -26,19 +27,23 @@ public class Assembler {
         List<MicroInstruction> instructions = new ArrayList<>();
         Map<Integer, String> instructionMap = new HashMap<>();
 
+        // primeira passada: processa linhas e identifica labels
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
 
+            // ignora linhas vazias e comentarios
             if (line.isEmpty() || line.startsWith(";")) {
                 continue;
             }
 
+            // detecta labels (linhas terminadas com :)
             if (line.endsWith(":")) {
                 String label = line.substring(0, line.length() - 1).trim();
                 labels.put(label, currentAddress);
                 continue;
             }
 
+            // monta instrucao e incrementa endereco atual
             try {
                 MicroInstruction inst = parseLine(line);
                 if (inst != null) {
@@ -47,10 +52,11 @@ public class Assembler {
                     currentAddress++;
                 }
             } catch (Exception e) {
-                errors.add(String.format("Line %d: %s - %s", i + 1, line, e.getMessage()));
+                errors.add(String.format("Linha %d: %s - %s", i + 1, line, e.getMessage()));
             }
         }
 
+        // segunda passada: resolve enderecos de labels em instrucoes goto
         resolveLabels(instructions, instructionMap);
 
         return new AssemblyResult(
@@ -165,16 +171,20 @@ public class Assembler {
     }
 
     private void resolveLabels(List<MicroInstruction> instructions, Map<Integer, String> instructionMap) {
+        // segunda passada: substitui nomes de labels por enderecos numericos
+        // procura instrucoes goto e atualiza campo addr com endereco do label
         for (int i = 0; i < instructions.size(); i++) {
             String line = instructionMap.get(i);
             if (line != null && line.toUpperCase().contains("GOTO")) {
                 String[] parts = line.split("[\\s,]+");
                 for (int j = 0; j < parts.length; j++) {
                     String part = parts[j];
+                    // suporta formato "GOTO label" e "GOTOlabel"
                     if (part.toUpperCase().equals("GOTO") && j + 1 < parts.length) {
                         String label = parts[j + 1].trim();
                         Integer addr = labels.get(label);
                         if (addr != null) {
+                            // reconstrói instrucao com endereco resolvido
                             MicroInstruction old = instructions.get(i);
                             MicroInstruction.Builder builder = new MicroInstruction.Builder()
                                 .addr(addr)
@@ -262,7 +272,7 @@ public class Assembler {
 
         public String getErrorOutput() {
             if (errors.isEmpty()) {
-                return "Assembly successful!";
+                return "Montagem concluida com sucesso!";
             }
             return String.join("\n", errors);
         }

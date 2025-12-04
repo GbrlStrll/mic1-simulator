@@ -27,11 +27,12 @@ public class CpuController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Define como obter os dados para cada coluna
+        // configura colunas da tabela para usar propriedades dos objetos register
+        // javafx automaticamente atualiza quando as propriedades mudam
         registerNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         registerValueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
 
-        // Formata a coluna de valor para exibir em Hex e Decimal
+        // customiza formato da coluna de valores para mostrar hex e decimal
         registerValueColumn.setCellFactory(column -> new javafx.scene.control.TableCell<>() {
             @Override
             protected void updateItem(Integer item, boolean empty) {
@@ -39,29 +40,29 @@ public class CpuController implements Initializable {
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    // Formata como "0x0000FFFF (65535)"
                     setText(String.format("0x%08X (%d)", item, item));
                 }
             }
         });
     }
 
-    /**
-     * Injeta o modelo (CPU) neste controlador.
-     * Este método é chamado pela classe Main para conectar a lógica (model)
-     * com a interface (controller).
-     */
     public void setModel(CPU model) {
+        // injecao de dependencia: conecta controller com modelo
+        // todas as atualizacoes no modelo refletem automaticamente na ui
         this.cpuModel = model;
 
+        // tabela de registradores observa lista do modelo
+        // quando registradores mudam, tabela atualiza automaticamente
         registerTable.setItems(this.cpuModel.getRegisterList());
 
+        // labels seguem propriedades do modelo via binding
         cyclesLabel.textProperty().bind(
-            this.cpuModel.cycleCountProperty().asString("Cycles: %d")
+            this.cpuModel.cycleCountProperty().asString("Ciclos: %d")
         );
 
         statusLabel.textProperty().bind(this.cpuModel.statusProperty());
 
+        // indicador visual muda de cor baseado no estado running
         model.runningProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
                 statusIndicator.getStyleClass().remove("status-indicator-off");
@@ -72,6 +73,7 @@ public class CpuController implements Initializable {
             }
         });
 
+        // area de log recebe mensagens do modelo conforme microinstrucoes sao executadas
         this.cpuModel.getMicrocodeLog().addListener((javafx.collections.ListChangeListener<String>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {

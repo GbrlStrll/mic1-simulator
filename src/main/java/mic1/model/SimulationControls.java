@@ -10,6 +10,8 @@ public class SimulationControls {
     private final BooleanProperty isPaused;
 
     public SimulationControls() {
+        // modelo gerencia estado dos controles de simulacao
+        // propriedades observaveis permitem ui reagir a mudancas automaticamente
         this.pauseBetweenSubcycles = new SimpleIntegerProperty(100);
         this.pauseOnPC = new SimpleIntegerProperty(-1);
         this.stepByStepMode = new SimpleBooleanProperty(false);

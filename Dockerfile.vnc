@@ -1,0 +1,41 @@
+FROM --platform=linux/amd64 maven:3.9-eclipse-temurin-21
+
+RUN apt-get update && apt-get install -y \
+    libx11-dev \
+    libxext-dev \
+    libxrender-dev \
+    libxtst-dev \
+    libxi-dev \
+    libgtk-3-dev \
+    libgdk-pixbuf2.0-dev \
+    libfontconfig1 \
+    libxrandr2 \
+    libasound2t64 \
+    x11vnc \
+    xvfb \
+    fluxbox \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn dependency:go-offline
+
+EXPOSE 5900
+
+ENV DISPLAY=:99
+
+CMD bash -c "export DISPLAY=:99 && \
+    rm -rf /tmp/.X99-lock /tmp/.X11-unix/X99 2>/dev/null || true && \
+    Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset & \
+    sleep 4 && \
+    while ! xdpyinfo -display :99 >/dev/null 2>&1; do sleep 1; done && \
+    fluxbox -display :99 & \
+    sleep 2 && \
+    mkdir -p /root/.vnc && \
+    x11vnc -storepasswd mic1sim /root/.vnc/passwd 2>/dev/null || true && \
+    x11vnc -display :99 -rfbauth /root/.vnc/passwd -listen 0.0.0.0 -xkb -forever -shared -rfbport 5900 -bg && \
+    sleep 2 && \
+    DISPLAY=:99 mvn javafx:run"

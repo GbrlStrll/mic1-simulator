@@ -1,0 +1,12 @@
+services:
+  mic1-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.vnc
+    container_name: mic1-simulator
+    ports:
+      - "5900:5900"
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true

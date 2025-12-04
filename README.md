@@ -2,7 +2,7 @@
 
 Este é um simulador do processador MIC-1 desenvolvido em Java usando JavaFX. O simulador fornece uma interface gráfica interativa para visualizar e controlar a execução do processador MIC-1.
 
-**Integrantes do grupo**: ~~*Beatriz Barboza*, ~~*Felipe Belletti*, *Gabriel Estrella*, *Isis Meira*, *Julia Yuki*, *Kauã Geddes*
+**Integrantes do grupo**: <del>*Beatriz Barboza*, </del>*Felipe Belletti*, *Gabriel Estrella*, *Isis Meira*, *Julia Yuki*, *Kauã Geddes*
 
 ## Estrutura do Projeto
 

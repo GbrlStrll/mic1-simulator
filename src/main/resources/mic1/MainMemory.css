@@ -119,3 +119,26 @@
     -fx-border-color: transparent;
     -fx-padding: 0;
 }
+
+/* Estatísticas de Cache */
+.cache-stats-container {
+    -fx-background-color: #3C3C3C;
+    -fx-background-radius: 10;
+}
+
+.cache-title-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.cache-subtitle-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #a0a0a0;
+    -fx-font-weight: bold;
+}
+
+.cache-stats-container .label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}

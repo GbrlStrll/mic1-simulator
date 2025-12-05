@@ -10,6 +10,8 @@ import mic1.core.MemoryWord;
 
 public class MainMemory {
     private static final int MEMORY_SIZE = 4096;
+    private static final int INSTRUCTION_MEMORY_START = 0;
+    private static final int DATA_MEMORY_THRESHOLD = 2048;
 
     private final int[] memory;
     
@@ -19,13 +21,17 @@ public class MainMemory {
     private final IntegerProperty mbr;
     
     private final BooleanProperty memoryChanged;
+    
+    private final Cache instructionCache;
+    private final Cache dataCache;
+    
+    private boolean isInstructionAccess;
 
     public MainMemory() {
         // array interno simula a memoria fisica (ram)
         this.memory = new int[MEMORY_SIZE];
         
         // lista observavel sincronizada com o array para atualizacao automatica da ui
-        // detecta mudancas em qualquer propriedade de cada palavra de memoria
         this.memoryList = FXCollections.observableArrayList(memWord ->
                 new javafx.beans.Observable[] {
                         memWord.valueProperty(),
@@ -35,10 +41,14 @@ public class MainMemory {
                 }
         );
         
-        // registradores de interface de memoria seguem o padrao mic-1
         this.mar = new SimpleIntegerProperty(0);
         this.mbr = new SimpleIntegerProperty(0);
         this.memoryChanged = new SimpleBooleanProperty(false);
+        this.isInstructionAccess = false;
+
+        // separa caches para evitar que acesso a dados expulse instrucoes uteis (conflito de cache)
+        this.instructionCache = new Cache(memory, 64, 4, 4);
+        this.dataCache = new Cache(memory, 64, 4, 4);
 
         initializeMemoryList();
     }
@@ -51,10 +61,12 @@ public class MainMemory {
     }
 
     public void write() {
-        // operacao de escrita seguindo protocolo mic-1
-        // cpu coloca endereco em mar e dado em mbr, depois chama write()
+        // escrita atualiza memoria e cache para manter dados sincronizados em todo sistema
         int address = mar.get();
         if (isValidAddress(address)) {
+            // direciona para cache correto para nao poluir cache de instrucoes com dados e vice-versa
+            Cache cache = isInstructionAccess(address) ? instructionCache : dataCache;
+            cache.write(address, mbr.get());
             memory[address] = mbr.get();
             memoryList.get(address).setValue(mbr.get());
             memoryChanged.set(!memoryChanged.get()); 
@@ -62,14 +74,26 @@ public class MainMemory {
     }
 
     public void read() {
-        // operacao de leitura seguindo protocolo mic-1
-        // cpu coloca endereco em mar, chama read(), e resultado fica em mbr
+        // leitura prioriza cache por ser muito mais rapido que memoria principal
         int address = mar.get();
         if (isValidAddress(address)) {
-            mbr.set(memory[address]);
+            Cache cache = isInstructionAccess(address) ? instructionCache : dataCache;
+            int value = cache.read(address);
+            mbr.set(value);
         } else {
             mbr.set(0);
         }
+    }
+    
+    public void setInstructionAccess(boolean isInstruction) {
+        // permite que a cpu informe explicitamente o tipo de acesso (fetch vs dados)
+        this.isInstructionAccess = isInstruction;
+    }
+    
+    private boolean isInstructionAccess(int address) {
+        // determina se acesso deve ir para cache de instrucoes ou dados
+        // usa flag explicita da cpu ou heuristica baseada no endereco
+        return isInstructionAccess || address < DATA_MEMORY_THRESHOLD;
     }
 
     public void setMAR(int value) {
@@ -118,14 +142,15 @@ public class MainMemory {
     }
 
     public void reset() {
-        // zera toda a memoria e registradores de interface
-        // sincroniza array interno e lista observavel
+        // zera toda a memoria e limpa ambos os caches
         for (int i = 0; i < MEMORY_SIZE; i++) {
             memory[i] = 0;
             memoryList.get(i).setValue(0);
         }
         mar.set(0);
         mbr.set(0);
+        instructionCache.reset();
+        dataCache.reset();
     }
 
     public ObservableList<MemoryWord> getMemoryList() {
@@ -145,9 +170,18 @@ public class MainMemory {
     }
 
     public void loadProgram(int[] program, int startAddress) {
-        // carrega vetor sequencialmente a partir do endereco informado
+        // flush no cache de instrucoes eh crucial aqui para evitar execucao de codigo antigo/obsoleto
         for (int i = 0; i < program.length && (startAddress + i) < MEMORY_SIZE; i++) {
             writeWord(startAddress + i, program[i]);
         }
+        instructionCache.flush();
+    }
+    
+    public Cache getInstructionCache() {
+        return instructionCache;
+    }
+    
+    public Cache getDataCache() {
+        return dataCache;
     }
 }

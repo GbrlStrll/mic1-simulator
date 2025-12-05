@@ -5,9 +5,10 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="450.0" prefWidth="800.0"
+<AnchorPane prefHeight="550.0" prefWidth="800.0"
             styleClass="root-pane" stylesheets="@MainMemory.css"
             xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="mic1.controller.MainMemoryController">
@@ -42,6 +43,42 @@
                         <Insets bottom="15.0" left="15.0" right="15.0" />
                     </VBox.margin>
                 </AnchorPane>
+                
+                <VBox styleClass="cache-stats-container">
+                    <children>
+                        <Label text="Cache Statistics" styleClass="cache-title-label">
+                            <VBox.margin>
+                                <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                            </VBox.margin>
+                        </Label>
+                        <HBox spacing="30.0">
+                            <children>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Instruction Cache" styleClass="cache-subtitle-label" />
+                                        <Label fx:id="instructionCacheHits" text="Hits: 0" />
+                                        <Label fx:id="instructionCacheMisses" text="Misses: 0" />
+                                        <Label fx:id="instructionCacheHitRate" text="Hit Rate: 0%" />
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets left="15.0" />
+                                    </VBox.margin>
+                                </VBox>
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Data Cache" styleClass="cache-subtitle-label" />
+                                        <Label fx:id="dataCacheHits" text="Hits: 0" />
+                                        <Label fx:id="dataCacheMisses" text="Misses: 0" />
+                                        <Label fx:id="dataCacheHitRate" text="Hit Rate: 0%" />
+                                    </children>
+                                </VBox>
+                            </children>
+                            <VBox.margin>
+                                <Insets bottom="15.0" left="15.0" right="15.0" />
+                            </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
             </children>
         </VBox>
     </children>

@@ -14,6 +14,9 @@ Este arquivo contém diversos exemplos de código microcode para testar o simula
 6. [Exemplo de Escrita na Memória](#6-exemplo-de-escrita-na-memória)
 7. [Exemplo Completo - Loop com Memória](#7-exemplo-completo---loop-com-memória)
 8. [Exemplo com Instruções ISA - Operações Aritméticas](#8-exemplo-com-instruções-isa---operações-aritméticas)
+9. [Exemplo com Stack - Push e Pop](#9-exemplo-com-stack---push-e-pop)
+10. [Exemplo de Cache de Dados - Leituras Repetidas](#10-exemplo-de-cache-de-dados---leituras-repetidas)
+11. [Exemplo de Cache Completo - Instruções e Dados](#11-exemplo-de-cache-completo---instruções-e-dados)
 
 ---
 
@@ -304,6 +307,205 @@ STOD 101
 - Endereço 100: 10 (0x0000000A)
 - Endereço 101: 15 (0x0000000F)
 - AC final: 15 (0x0000000F)
+
+---
+
+## 9. Exemplo com Stack - Push e Pop
+
+**Descrição**: Demonstra operações básicas com a stack usando PUSH e POP
+
+```asm
+INIT:
+    LOCO 4000
+    A=AC, C=SP, PASSA, ENC
+
+PUSH_VALUES:
+    LOCO 10
+    PUSH
+    LOCO 20
+    PUSH
+    LOCO 30
+    PUSH
+
+POP_VALUES:
+    POP
+    STOD 201
+    POP
+    STOD 202
+    POP
+    STOD 203
+
+DONE:
+    GOTO DONE
+```
+
+**O que faz:**
+1. **INIT**: Inicializa SP = 4000 (topo da pilha no endereço 4000)
+2. **PUSH_VALUES**: Empilha três valores (10, 20, 30) na stack
+   - Cada PUSH escreve AC na memória no endereço SP e depois decrementa SP
+   - Após os 3 pushes: SP = 3997, stack contém [10, 20, 30] nos endereços 4000, 3999, 3998
+3. **POP_VALUES**: Desempilha os valores na ordem inversa (LIFO - Last In First Out)
+   - Cada POP incrementa SP, lê da memória e coloca em AC
+   - Primeiro POP: AC = 30 (último valor empilhado, do endereço 3998)
+   - Segundo POP: AC = 20 (do endereço 3999)
+   - Terceiro POP: AC = 10 (do endereço 4000)
+   - Cada valor desempilhado é armazenado em endereços diferentes da memória (201, 202, 203)
+4. **DONE**: Loop infinito
+
+**Fluxo de Execução:**
+- **PUSH**: Copia AC para MBR, configura MAR com SP, escreve na memória, decrementa SP
+- **POP**: Incrementa SP, configura MAR com SP, lê da memória para MBR, copia MBR para AC
+- A pilha cresce para baixo (endereços menores), então SP decrementa ao empilhar
+- **Nota**: A memória só aceita endereços entre 0 e 4095, por isso SP é inicializado com 4000
+
+**Valores Esperados:**
+- **SP inicial**: 4000
+- **SP após 3 pushes**: 3997
+- **SP após 3 pops**: 4000 (volta ao inicial)
+- **Memória da stack**:
+  - Endereço 4000: 10 (0x0000000A) - primeiro valor empilhado
+  - Endereço 3999: 20 (0x00000014) - segundo valor empilhado
+  - Endereço 3998: 30 (0x0000001E) - terceiro valor empilhado
+- **Endereço 201**: 30 (0x0000001E) - primeiro valor desempilhado
+- **Endereço 202**: 20 (0x00000014) - segundo valor desempilhado
+- **Endereço 203**: 10 (0x0000000A) - terceiro valor desempilhado
+- **AC final**: 10 (último valor desempilhado)
+
+**Como testar:**
+- Configure pause de 500-1000ms para observar cada operação
+- Abra a janela **Main Memory** e navegue até os endereços 3997-4000 para ver a stack
+- Observe o registrador **SP** decrementando durante PUSH e incrementando durante POP
+- Verifique que os valores são desempilhados na ordem inversa (LIFO)
+- Confirme que os endereços 201, 202, 203 contêm respectivamente 30, 20, 10
+- Use step-by-step mode para ver cada microinstrução sendo executada
+
+---
+
+## 10. Exemplo de Cache de Dados - Leituras Repetidas
+
+**Descrição**: Demonstra o funcionamento do cache de dados através de múltiplas leituras do mesmo endereço
+
+```asm
+INICIO:
+    LOCO 10
+    STOD x
+    
+    LODD x
+    LODD x
+    LODD x
+    LODD x
+    LODD x
+    
+    JUMP INICIO
+
+x:
+```
+
+**O que faz:**
+1. **INICIO**: Carrega constante 10 no AC e armazena na variável `x`
+2. **Loop de leituras**: Lê o valor de `x` cinco vezes consecutivas
+3. **JUMP INICIO**: Reinicia o processo em loop infinito
+
+**Fluxo de Execução:**
+- Primeira `LODD x`: **MISS** no Data Cache (carrega bloco contendo endereço de `x`)
+- Próximas `LODD x`: **HITs** no Data Cache (dado já está no cache)
+- Como estamos lendo o mesmo endereço repetidamente, o cache é muito eficiente
+- O cache de dados mantém os dados em blocos de 4 palavras para acesso rápido
+
+**Valores Esperados:**
+- Endereço de `x`: 10 (0x0000000A)
+- AC durante execução: 10 (valor lido de `x`)
+- **Data Cache Hits**: Aumenta rapidamente após primeira leitura
+- **Data Cache Misses**: Baixo (apenas primeira leitura)
+- **Hit Rate**: Deve ficar alto (>80%) após algumas iterações
+
+**Como testar:**
+- Configure pause de 300-500ms para observar as estatísticas
+- Abra a janela **Main Memory** e observe a seção **Cache Statistics** na parte inferior
+- Execute o programa e observe:
+  - Primeira `LODD x`: **Data Cache Miss** aumenta
+  - Próximas `LODD x`: **Data Cache Hits** aumenta rapidamente
+  - **Hit Rate** do Data Cache deve ficar alto (>80%) após algumas iterações
+- Compare as estatísticas antes e depois de algumas iterações do loop
+- Use step-by-step mode para ver cada leitura sendo executada
+
+---
+
+## 11. Exemplo de Cache Completo - Instruções e Dados
+
+**Descrição**: Demonstra o funcionamento completo dos caches de instruções e dados em um programa com loop
+
+```asm
+INICIO:
+    LOCO 0
+    STOD contador
+    
+    LOCO 1
+    STOD incremento
+    
+    LOCO 100
+    STOD limite
+
+LOOP:
+    LODD contador
+    ADDD incremento
+    STOD contador
+    
+    LODD contador
+    SUBD limite
+    IFZ JUMP FIM
+    
+    JUMP LOOP
+
+FIM:
+    JUMP FIM
+
+contador:
+incremento:
+limite:
+```
+
+**O que faz:**
+1. **INICIO**: Inicializa três variáveis na memória (contador=0, incremento=1, limite=100)
+2. **LOOP**: Incrementa contador, verifica se chegou ao limite
+   - Lê `contador` e `incremento` da memória
+   - Soma e armazena resultado de volta em `contador`
+   - Compara `contador` com `limite`
+   - Se igual, vai para FIM
+   - Senão, continua o loop
+3. **FIM**: Loop infinito quando contador atinge o limite
+
+**Fluxo de Execução:**
+- **Cache de Instruções**: 
+  - Primeira execução: MISS (carrega instruções)
+  - Próximas execuções: HITs (instruções já estão no cache)
+  - Loop faz com que as mesmas instruções sejam executadas repetidamente
+- **Cache de Dados**:
+  - Primeira leitura/escrita: MISS (carrega blocos contendo variáveis)
+  - Próximas leituras: HITs (dados já estão no cache)
+  - Mesmos endereços (contador, incremento, limite) são acessados repetidamente
+- Ambos os caches demonstram eficiência com padrões repetitivos
+
+**Valores Esperados:**
+- **contador**: Incrementa de 0 até 100
+- **incremento**: Sempre 1
+- **limite**: Sempre 100
+- **Instruction Cache Hit Rate**: Alto (>80%) após primeira iteração
+- **Data Cache Hit Rate**: Alto (>80%) após primeira iteração
+- Ambos os caches devem mostrar muitos mais hits que misses
+
+**Como testar:**
+- Configure pause de 200-500ms para observar as estatísticas mudando
+- Abra a janela **Main Memory** e observe ambas as seções de cache:
+  - **Instruction Cache**: Hits, Misses, Hit Rate
+  - **Data Cache**: Hits, Misses, Hit Rate
+- Execute o programa e observe:
+  - **Primeira iteração**: Ambos os caches têm misses iniciais
+  - **Próximas iterações**: Ambos os caches têm hits altos
+  - **Hit Rates**: Devem aumentar rapidamente e ficar altos (>80%)
+- Observe os logs na janela CPU para ver indicações "[INST]" e "[DATA]" nos acessos
+- Compare as estatísticas antes e depois de várias iterações
+- Use reset e execute novamente para ver as estatísticas zerarem e crescerem novamente
 
 ---
 

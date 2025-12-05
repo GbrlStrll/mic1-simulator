@@ -122,30 +122,34 @@ public class CPU {
         // ciclo completo de execucao de uma microinstrucao
         // segue o padrao fetch-decode-execute da arquitetura mic-1
         
-        // fase 1: validacao e busca
+        // validacao e busca
         if (mpc.get() >= CONTROL_STORE_SIZE || controlStore[mpc.get()] == null) {
             logMicrocode("ERRO: Endereco MPC invalido: " + mpc.get());
             stop();
             return;
         }
 
+        // FASE 1: FETCH (Buscar a microinstrução)
+        // Pega a microinstrução atual da Control Store usando MPC como índice
         MicroInstruction mi = controlStore[mpc.get()];
         mir.set(mpc.get());
 
-        // fase 2: preparacao dos operandos
-        // entrada A pode vir de registrador ou mbr dependendo do amux
-        int aluInputA = getAluInputA(mi);
-        int aluInputB = getRegisterValue(mi.getRegB());
+        // FASE 2: DECODE (Decodificar - preparar operandos)
+        // Pega valores dos registradores que serão usados pela ALU
+        int aluInputA = getAluInputA(mi);  // Entrada A (pode vir de reg ou MBR)
+        int aluInputB = getRegisterValue(mi.getRegB());  // Entrada B (sempre de reg)
 
         logMicrocode(String.format(">>> MPC=%d | A=R%d(0x%X) B=R%d(0x%X) ALU=%s",
             mpc.get(), mi.getRegA(), aluInputA, mi.getRegB(), aluInputB, mi.getAluOp()));
 
-        // fase 3: execucao alu e shift
+        // FASE 3: EXECUTE
         int aluResult = alu.execute(aluInputA, aluInputB, mi.getAluOp());
+
+        // FASE 4: TRANSFORM (Shifter)
         int shiftedResult = shifter.shift(aluResult, mi.getShiftOp());
 
-        // fase 4: escrita de resultados
-        // resultado pode ir para registrador, mar ou mbr dependendo dos flags da instrucao
+        // FASE 5: STORE (Guardar resultado)
+        // Se microinstrução diz para escrever (ENC=true):
         if (mi.isEnc() && mi.getRegC() < registerList.size()) {
             Register targetReg = registerList.get(mi.getRegC());
             if (targetReg != null) {
@@ -155,35 +159,42 @@ public class CPU {
             }
         }
 
+        // Escrita em MAR (endereço de memória)
         if (mi.isMar() && memory != null) {
             memory.setMAR(shiftedResult);
             logMicrocode(String.format("    MAR = 0x%X (%d)", shiftedResult, shiftedResult));
         }
 
+        // Escrita em MBR (dado a escrever/lido)
         if (mi.isMbr() && memory != null) {
             memory.setMBR(shiftedResult);
             logMicrocode(String.format("    MBR = 0x%X (%d)", shiftedResult, shiftedResult));
         }
 
-        // fase 5: operacoes de memoria
-        // leitura e escrita sao operacoes separadas que usam mar e mbr
+        // FASE 6: MEMORY (Operações de memória)
         if (mi.isRd() && memory != null) {
-            memory.read();
-            logMicrocode(String.format("    RD: Memory[%d] -> MBR = 0x%X", memory.getMAR(), memory.getMBR()));
+            // identifica se eh busca de instrucao (pc -> ir) ou dado normal
+            boolean isInstructionRead = (mi.getRegB() == 0 && mi.getRegC() == 3);
+            memory.setInstructionAccess(isInstructionRead);
+            memory.read(); // Lê Memory[MAR] → MBR
+            String cacheType = isInstructionRead ? "INST" : "DATA";
+            logMicrocode(String.format("    RD[%s]: Memory[%d] -> MBR = 0x%X", cacheType, memory.getMAR(), memory.getMBR()));
         }
 
         if (mi.isWr() && memory != null) {
-            logMicrocode(String.format("    WR: MBR(0x%X) -> Memory[%d]", memory.getMBR(), memory.getMAR()));
-            memory.write();
+            // escritas sao sempre tratadas como acesso a dados
+            memory.setInstructionAccess(false);
+            logMicrocode(String.format("    WR[DATA]: MBR(0x%X) -> Memory[%d]", memory.getMBR(), memory.getMAR()));
+            memory.write(); // Escreve MBR → Memory[MAR]
         }
 
-        // fase 6: calculo do proximo endereco
+        // FASE 7: NEXT (Calcular próxima microinstrução)
         // pode ser sequencial ou condicional baseado em flags da alu
         int nextMpc = calculateNextMpc(mi);
         logMicrocode(String.format("    COND=%s -> Next MPC=%d", mi.getCond(), nextMpc));
-        mpc.set(nextMpc);
 
-        cycleCount.set(cycleCount.get() + 1);
+        mpc.set(nextMpc); // Atualiza ponteiro para próxima microinstrução
+        cycleCount.set(cycleCount.get() + 1); // Conta mais um ciclo
     }
 
     private int getAluInputA(MicroInstruction mi) {

@@ -273,6 +273,46 @@ Adiciona um novo painel que mostra o estado atual de todos os
 registradores da CPU em tempo real durante a simulação."
 ```
 
+## Cache de Dados e Instruções
+
+O simulador implementa cache L1 separado para dados e instruções:
+
+- **Cache de Instruções**: Acelera acesso a instruções durante execução
+- **Cache de Dados**: Acelera leitura/escrita de dados na memória
+- **Política**: LRU (Least Recently Used) com write-through
+- **Tamanho**: 64 linhas × 4 palavras = 256 palavras por cache
+- **Associatividade**: 4-way set-associative
+
+### Visualizando Estatísticas de Cache
+
+1. Abra a janela **Main Memory**
+2. Na parte inferior, você verá estatísticas de ambos os caches:
+   - **Hits**: Número de acessos que encontraram dados no cache
+   - **Misses**: Número de acessos que precisaram buscar na memória principal
+   - **Hit Rate**: Porcentagem de acertos (hits / total de acessos)
+
+### Testando o Cache
+
+Consulte o arquivo **[CACHE_TESTES.md](CACHE_TESTES.md)** para exemplos detalhados de como testar o cache.
+
+**Exemplo rápido:**
+```asm
+/ Programa que demonstra cache funcionando
+INICIO:
+    LOCO 10
+    STOD x
+    LODD x
+    LODD x
+    LODD x
+    JUMP INICIO
+x:
+```
+
+Execute este programa e observe:
+- Primeira `LODD x`: MISS no Data Cache
+- Próximas `LODD x`: HITs no Data Cache
+- Hit Rate aumenta rapidamente após primeira iteração
+
 ## Resolução de Problemas
 
 Se você encontrar o erro "JavaFX runtime components are missing":

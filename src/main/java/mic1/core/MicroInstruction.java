@@ -74,19 +74,26 @@ public class MicroInstruction {
     public static class Builder {
         // padrao builder para construir microinstrucoes de forma fluente
         // permite montar instrucao passo a passo durante parsing do assembler
+
+        // Selecao de registradores
         private int addr = 0;
-        private int regA = 0;
-        private int regB = 0;
-        private int regC = 0;
-        private ALU.Operation aluOp = ALU.Operation.ADD;
-        private Shifter.ShiftOperation shiftOp = Shifter.ShiftOperation.NONE;
-        private boolean amux = false;
-        private Condition cond = Condition.NONE;
-        private boolean mbr = false;
-        private boolean mar = false;
-        private boolean rd = false;
-        private boolean wr = false;
-        private boolean enc = false;
+        private int regA = 0; // registrador entrada A na ALU
+        private int regB = 0; // registrador entrada B na ALU
+        private int regC = 0; // registrador destino na ALU
+
+        // Operacoes da ALU
+        private ALU.Operation aluOp = ALU.Operation.ADD; // Operacao na ALU (ADD/AND/PASS_A/NOT_A)
+        private Shifter.ShiftOperation shiftOp = Shifter.ShiftOperation.NONE; // Deslocar resultado (NONE/LEFT/RIGHT)
+
+        // Sinais de controle
+        private boolean amux = false; // Usar MBR na entrada A da ALU ?
+        private boolean mbr = false; // Escrever resultado da ALU/shifter no MBR?
+        private boolean mar = false; // Escrever resultado da ALU/shifter no MAR?
+        private boolean rd = false; // Ler da memória (Memory[MAR] → MBR)?
+        private boolean wr = false; // Escrever na memoria (MBR → Memory[MAR])?
+        private boolean enc = false; // Escrever resultado da ALU/shifter no Registrador C? Se false, resultado não é escrito em registrador (usado quando resultado vai apenas para MAR/MBR)
+        
+        private Condition cond = Condition.NONE; // Condicao para saltos (NONE/NEGATIVE/ZERO/ALWAYS)
 
         public Builder addr(int addr) { this.addr = addr; return this; }
         public Builder regA(int regA) { this.regA = regA; return this; }

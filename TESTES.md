@@ -13,6 +13,7 @@ Este arquivo contém diversos exemplos de código microcode para testar o simula
 5. [Exemplo de Operações Lógicas](#5-exemplo-de-operações-lógicas)
 6. [Exemplo de Escrita na Memória](#6-exemplo-de-escrita-na-memória)
 7. [Exemplo Completo - Loop com Memória](#7-exemplo-completo---loop-com-memória)
+8. [Exemplo com Instruções ISA - Operações Aritméticas](#8-exemplo-com-instruções-isa---operações-aritméticas)
 
 ---
 
@@ -270,6 +271,39 @@ DONE:
   - Endereço 4 = 0x00000004 (4 em decimal)
   - Endereço 5 = 0x00000005 (5 em decimal)
 - Observe MAR e MBR mudando a cada iteração
+
+---
+
+## 8. Exemplo com Instruções ISA - Operações Aritméticas
+
+**Descrição**: Demonstra operações aritméticas básicas usando instruções ISA (LOCO, STOD, ADDD) que interagem com a ALU
+
+```asm
+LOCO 10
+STOD 100
+LOCO 5
+ADDD 100
+STOD 101
+```
+
+**O que faz:**
+1. **LOCO 10**: Carrega constante 10 no AC usando decomposição binária eficiente
+2. **STOD 100**: Armazena AC (10) no endereço 100 da memória
+3. **LOCO 5**: Carrega constante 5 no AC
+4. **ADDD 100**: Soma valor do endereço 100 (10) ao AC (AC = 5 + 10 = 15)
+5. **STOD 101**: Armazena resultado final (15) no endereço 101
+
+**Fluxo de Execução:**
+- Cada instrução ISA é expandida automaticamente em múltiplas microinstruções
+- **LOCO**: Usa decomposição binária eficiente para valores grandes
+- **STOD**: Escreve na memória usando MAR (endereço) e MBR (dado)
+- **ADDD**: Lê da memória, soma com AC usando ALU e atualiza AC
+- Todas as operações passam pela ALU para processamento
+
+**Valores Esperados:**
+- Endereço 100: 10 (0x0000000A)
+- Endereço 101: 15 (0x0000000F)
+- AC final: 15 (0x0000000F)
 
 ---
 

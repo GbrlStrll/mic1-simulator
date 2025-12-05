@@ -655,9 +655,10 @@ public class Assembler {
             .build());
         
         // soma AC + MBR e armazena resultado no AC
+        // AMUX=true: entrada A vem de MBR, entrada B vem de AC (regB=1)
         result.add(new MicroInstruction.Builder()
-            .regA(1)
-            .regB(0)
+            .regA(0)
+            .regB(1)
             .regC(1)
             .aluOp(ALU.Operation.ADD)
             .enc(true)
@@ -699,14 +700,43 @@ public class Assembler {
             .addr(nextAddr + 2)
             .build());
         
-        // subtrai MBR de AC e armazena resultado no AC
+        // copia MBR para registrador temporario B via AMUX
+        result.add(new MicroInstruction.Builder()
+            .regA(0)
+            .regB(0)
+            .regC(11)
+            .aluOp(ALU.Operation.PASS_A)
+            .enc(true)
+            .amux(true)
+            .addr(nextAddr + 3)
+            .build());
+        
+        // calcula complemento de 2 de MBR: NOT(MBR) + 1
+        result.add(new MicroInstruction.Builder()
+            .regA(11)
+            .regB(0)
+            .regC(11)
+            .aluOp(ALU.Operation.NOT_A)
+            .enc(true)
+            .addr(nextAddr + 4)
+            .build());
+        
+        result.add(new MicroInstruction.Builder()
+            .regA(11)
+            .regB(6)
+            .regC(11)
+            .aluOp(ALU.Operation.ADD)
+            .enc(true)
+            .addr(nextAddr + 5)
+            .build());
+        
+        // subtrai: AC - MBR = AC + (-MBR) = AC + NOT(MBR) + 1
         result.add(new MicroInstruction.Builder()
             .regA(1)
-            .regB(0)
+            .regB(11)
             .regC(1)
             .aluOp(ALU.Operation.ADD)
             .enc(true)
-            .amux(true)
             .addr(currentAddress + result.size() + 1)
             .build());
         
